@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "status": "prototype-pending-listening-test",
+  "source": "Original procedural waveforms and note sequences defined in generate_audio.py; no samples or reference recordings used.",
+  "attribution": "Created for Escape Zero with a Python standard-library synthesizer.",
+  "thirdPartyAssets": false,
+  "format": {
+    "encoding": "PCM signed 16-bit little-endian",
+    "sampleRate": 22050,
+    "channels": 1
+  },
+  "musicBehavior": "One quiet ambient loop across menu/game/pause/settings; respects global volume/mute. Starts after browser audio unlock.",
+  "files": [
+    {
+      "file": "jump.wav",
+      "seconds": 0.18,
+      "peak": 0.3232
+    },
+    {
+      "file": "key.wav",
+      "seconds": 0.38,
+      "peak": 0.3445
+    },
+    {
+      "file": "interact.wav",
+      "seconds": 0.22,
+      "peak": 0.3276
+    },
+    {
+      "file": "checkpoint.wav",
+      "seconds": 0.48,
+      "peak": 0.3142
+    },
+    {
+      "file": "caught.wav",
+      "seconds": 0.4,
+      "peak": 0.3212
+    },
+    {
+      "file": "complete.wav",
+      "seconds": 0.85,
+      "peak": 0.334
+    },
+    {
+      "file": "ui.wav",
+      "seconds": 0.1,
+      "peak": 0.2464
+    },
+    {
+      "file": "chase.wav",
+      "seconds": 0.55,
+      "peak": 0.2594
+    },
+    {
+      "file": "ambient.wav",
+      "seconds": 16,
+      "peak": 0.2126
+    }
+  ]
+}
