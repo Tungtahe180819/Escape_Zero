@@ -9,6 +9,9 @@ export class BootScene extends Phaser.Scene {
 
     preload(): void {
         preloadAudio(this)
+        this.load.spritesheet('story-npcs', 'assets/characters/story-npcs-v1.png', {
+            frameWidth: 32, frameHeight: 48,
+        })
         this.load.spritesheet(
             'minh',
             '/assets/characters/minh-sheet.png',
@@ -54,7 +57,7 @@ export class BootScene extends Phaser.Scene {
         }
 
         addAnimation('minh-idle', 0, 5, 6, -1)
-        addAnimation('minh-walk', 6, 11, 8, -1)
+        addAnimation('minh-walk', 6, 11, 12, -1)
         addAnimation('minh-jump', 12, 13, 8, 0)
         addAnimation('minh-fall', 14, 15, 8, 0)
         addAnimation('minh-crouch', 16, 17, 4, -1)

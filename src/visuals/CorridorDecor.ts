@@ -1,10 +1,34 @@
 import Phaser from 'phaser'
+import type { HidingState } from '../systems/stealth/HidingSystem'
+
+export function createCorridorHidingPlaces(scene: Phaser.Scene, zones: readonly Phaser.Geom.Rectangle[]): (state: HidingState, alerted: boolean) => void {
+    const labels = zones.map(zone => {
+        const g = scene.add.graphics().setDepth(1)
+        g.fillStyle(0x16262d).fillRect(zone.x, zone.y, zone.width, zone.height)
+        g.fillStyle(0x53686d).fillRect(zone.x, zone.y, 7, zone.height)
+            .fillRect(zone.right - 7, zone.y, 7, zone.height).fillRect(zone.x, zone.y, zone.width, 5)
+        g.fillStyle(0x859590).fillRect(zone.x, zone.y, zone.width, 2)
+        g.lineStyle(1, 0x33494e)
+        for (let y = zone.y + 12; y < zone.bottom - 5; y += 9) g.lineBetween(zone.x + 2, y, zone.x + 6, y)
+        g.fillStyle(0xa59d6f).fillRect(zone.x + 9, zone.y + 7, 9, 3)
+        return scene.add.text(zone.centerX, zone.y - 12, 'CHỖ NÚP · GIỮ S', {
+            fontFamily: 'monospace', fontSize: '8px', color: '#a9c3c8', stroke: '#0a141b', strokeThickness: 3,
+        }).setOrigin(0.5).setDepth(4)
+    })
+    return (state, alerted) => labels.forEach((label, i) => {
+        const inside = state.zoneIndex === i
+        label.setText(!inside ? 'CHỖ NÚP · GIỮ S' : !state.hidden ? 'GIỮ S ĐỂ NÚP'
+            : alerted ? 'ĐÃ NÚP · LÍNH CÒN TÌM' : 'ĐÃ ẨN · AN TOÀN')
+            .setColor(inside && state.hidden ? alerted ? '#fb923c' : '#86efac' : '#a9c3c8')
+    })
+}
 
 export function createCorridorDecor(
     scene: Phaser.Scene,
     worldWidth: number,
+    floorOffset = 0,
 ): void {
-    const decor = scene.add.graphics().setDepth(-1)
+    const decor = scene.add.graphics().setDepth(-1).setPosition(0, floorOffset)
 
     // Cable tray running along the background wall.
     decor.fillStyle(0x101c23)

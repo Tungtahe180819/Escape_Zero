@@ -1,24 +1,33 @@
 import Phaser from 'phaser'
 import { playSfx } from '../systems/audio/AudioSystem'
+import { CHARACTER_SCALE } from '../config/characterConfig'
+import { PlayerAnimationState } from './PlayerAnimationState'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private readonly moveSpeed = 120
-    private readonly jumpSpeed = 250
+    private readonly jumpSpeed = 220
     private crouching = false
+    private readonly animationState = new PlayerAnimationState()
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'minh', 0)
 
         scene.add.existing(this)
 
-        // 32x48 artwork displayed at the original 16x24 size.
-        this.setScale(0.5)
+        // Standing artwork is 39–40 px tall inside the padded 48 px frame.
+        // Scale 0.9 displays at least 35.1 px: 73% of the 48 px cell door.
+        const visualScale = CHARACTER_SCALE
+        this.setScale(visualScale)
+        this.setOrigin(0.5, 1 - 12 / (48 * visualScale))
 
         scene.physics.add.existing(this)
 
-        // Unscaled body dimensions; world size is 16x24.
-        this.setBodySize(32, 48, false)
-        this.setOffset(0, 0)
+        // Keep 16x24 collision size, but align its bottom to the visible sole (row 46),
+        // not the two transparent padding rows at the bottom of the 48px frame.
+        const sourceBodyWidth = 16 / visualScale
+        const sourceBodyHeight = 24 / visualScale
+        this.setBodySize(sourceBodyWidth, sourceBodyHeight, false)
+        this.setOffset((32 - sourceBodyWidth) / 2, 46 - sourceBodyHeight)
         this.setCollideWorldBounds(true)
 
         this.play('minh-idle')
@@ -31,25 +40,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             return
         }
 
-        const grounded =
-            this.body.blocked.down ||
-            this.body.touching.down
-
-        let animation: string
-
-        if (!grounded) {
-            animation = this.body.velocity.y < 0
-                ? 'minh-jump'
-                : 'minh-fall'
-        } else if (this.crouching) {
-            animation = 'minh-crouch'
-        } else if (Math.abs(this.body.velocity.x) > 1) {
-            animation = 'minh-walk'
-        } else {
-            animation = 'minh-idle'
-        }
-
-        this.play(animation, true)
+        const animation = this.animationState.select(this.body, this.crouching, time)
+        // A completed jump/fall sequence holds its last frame instead of restarting every render.
+        if (this.anims.currentAnim?.key !== animation) this.play(animation, true)
     }
 
     move(horizontalAxis: number): void {

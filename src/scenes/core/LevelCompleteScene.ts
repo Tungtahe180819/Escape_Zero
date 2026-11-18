@@ -23,23 +23,28 @@ export class LevelCompleteScene extends Phaser.Scene {
 
         this.add.text(
             centerX,
-            65,
-            isLevel02 ? 'LEVEL 02 COMPLETE' : 'LEVEL 01 COMPLETE',
+            40,
+            isLevel02 ? 'CÁI GIÁ CỦA SỰ THẬT' : 'MỘT CÁNH CỬA ĐÃ MỞ',
             {
                 fontFamily: 'monospace',
-                fontSize: '20px',
+                fontSize: '18px',
                 color: '#86efac',
             },
         ).setOrigin(0.5)
 
         this.add.text(
             centerX,
-            105,
-            isLevel02 ? 'Continue to Level 03.' : 'Continue to Level 02.',
+            78,
+            isLevel02
+                ? 'USB đã rời phòng máy. Lan và Tuấn còn ở lại.\nMinh phải qua hàng rào để mang chứng cứ tới người có thể giúp.\nLần này, đường thoát còn dành cho những người phía sau.'
+                : 'Minh: “Còn hai người?”\nTuấn: “Em canh cửa. Anh xem đường trước.”\nLan: “Mở được cửa này đã. Chúng ta mới có đường đi tiếp.”',
             {
                 fontFamily: 'monospace',
-                fontSize: '12px',
+                fontSize: '10px',
                 color: '#e5e7eb',
+                align: 'center',
+                wordWrap: { width: 430 },
+                lineSpacing: 4,
             },
         ).setOrigin(0.5)
 
@@ -72,8 +77,8 @@ export class LevelCompleteScene extends Phaser.Scene {
             this.scene.start('MenuScene')
         }
 
-        addButton(140, '[ NEXT LEVEL - N ]', nextLevel)
-        addButton(185, '[ REPLAY - R ]', replay)
+        addButton(157, isLevel02 ? '[ TỚI HÀNG RÀO - N ]' : '[ TÌM LAN VÀ TUẤN - N ]', nextLevel)
+        addButton(196, '[ REPLAY - R ]', replay)
         addButton(235, '[ MENU - ENTER ]', returnToMenu)
 
         this.input.keyboard?.on('keydown-N', nextLevel)

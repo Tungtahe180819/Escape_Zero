@@ -1,4 +1,5 @@
 export class MissionSystem {
+    private hairpinReceived = false
     private keyCollected = false
     private doorUnlocked = false
     private finished = false
@@ -11,8 +12,26 @@ export class MissionSystem {
         return this.doorUnlocked
     }
 
-    collectKey(): void {
+    get hasHairpin(): boolean {
+        return this.hairpinReceived
+    }
+
+    receiveHairpin(): boolean {
+        if (this.hairpinReceived) {
+            return false
+        }
+
+        this.hairpinReceived = true
+        return true
+    }
+
+    collectKey(): boolean {
+        if (!this.hairpinReceived || this.keyCollected) {
+            return false
+        }
+
         this.keyCollected = true
+        return true
     }
 
     unlockDoor(): boolean {
@@ -26,18 +45,22 @@ export class MissionSystem {
 
     getObjective(): string {
         if (this.finished) {
-            return 'Level complete'
+            return 'Đã thoát phòng giam'
+        }
+
+        if (!this.hairpinReceived) {
+            return 'Nói chuyện với Lan'
         }
 
         if (!this.keyCollected) {
-            return 'Find the key'
+            return 'Dùng kẹp tóc móc chìa ngoài song cửa'
         }
 
         if (!this.doorUnlocked) {
-            return 'Unlock the door'
+            return 'Mở cửa phòng giam'
         }
 
-        return 'Reach the exit'
+        return 'Tìm lối sang hành lang giám sát'
     }
 
     tryComplete(): boolean {
@@ -50,8 +73,17 @@ export class MissionSystem {
     }
 
     reset(): void {
+        this.hairpinReceived = false
         this.keyCollected = false
         this.doorUnlocked = false
+        this.finished = false
+    }
+
+    restoreAtCheckpoint(preserveOpenDoor: boolean): void {
+        // Lan's conversation and hairpin are remembered for this level attempt.
+        // Only a full level restart creates a new mission and repeats the intro.
+        this.doorUnlocked = preserveOpenDoor && this.doorUnlocked
+        this.keyCollected = this.doorUnlocked
         this.finished = false
     }
 }

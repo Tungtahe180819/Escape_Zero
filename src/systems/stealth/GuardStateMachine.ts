@@ -19,10 +19,10 @@ export class GuardStateMachine {
         if (
             !Number.isFinite(timing.suspicionMs)
             || !Number.isFinite(timing.searchMs)
-            || timing.suspicionMs <= 0
+            || timing.suspicionMs < 0
             || timing.searchMs <= 0
         ) {
-            throw new Error('Guard durations must be positive finite numbers')
+            throw new Error('Guard suspicion must be nonnegative and search positive (finite milliseconds)')
         }
 
         this.timing = { ...timing }
@@ -35,7 +35,7 @@ export class GuardStateMachine {
     setTargetVisible(visible: boolean): void {
         if (visible) {
             if (this.currentState === 'PATROL') {
-                this.transition('SUSPICIOUS')
+                this.transition(this.timing.suspicionMs === 0 ? 'CHASE' : 'SUSPICIOUS')
             } else if (this.currentState === 'SEARCH') {
                 this.transition('CHASE')
             }

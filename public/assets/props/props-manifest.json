@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-gameplay-review",
+  "source": "Original built-in AI image generation without reference images; normalized with Python/Pillow.",
+  "sourceFiles": [
+    "exec-a3679b79-3459-452f-b11d-0c25d33a250a.png",
+    "exec-c80b41e9-a0f7-47aa-84dc-93da7d2895da.png"
+  ],
+  "promptSummary": {
+    "key": "One horizontal brass key, hollow bow left, two teeth right, simple pixel clusters, transparent background, no glow.",
+    "door": "Two aligned states of a narrow steel cell door: closed barred gate with brass latch and open gate hugging left jamb; transparent passage, worn blue-grey steel, no wall or floor."
+  },
+  "assets": [
+    {
+      "file": "cell-key.png",
+      "textureKey": "cell-key",
+      "width": 32,
+      "height": 16,
+      "displayWidth": 16,
+      "displayHeight": 8,
+      "physics": false
+    },
+    {
+      "file": "cell-door-closed.png",
+      "textureKey": "cell-door-closed",
+      "width": 32,
+      "height": 96,
+      "displayWidth": 16,
+      "displayHeight": 48,
+      "physics": "Existing full rectangular static door body; unchanged bounds."
+    },
+    {
+      "file": "cell-door-open.png",
+      "textureKey": "cell-door-open",
+      "width": 32,
+      "height": 96,
+      "displayWidth": 16,
+      "displayHeight": 48,
+      "physics": "Same image object, static body disabled while open."
+    }
+  ],
+  "notes": [
+    "Both door states use identical frame dimensions.",
+    "Key interaction radius and object coordinates unchanged.",
+    "No external source artwork or third-party sample used in this generation.",
+    "No GitHub push or Vercel deploy performed."
+  ]
+}

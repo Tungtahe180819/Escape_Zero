@@ -11,13 +11,26 @@ import { Guard } from '../../entities/Guard'
 import { DetectionSystem } from '../../systems/stealth/DetectionSystem'
 import { saveSystem } from '../../systems/progress/SaveSystem'
 import { createPrisonDecor } from '../../visuals/PrisonDecor'
+import { createCellStoryDecor } from '../../visuals/CellStoryDecor'
+import { LEVEL01_LAN_INTRO } from '../../config/level01Story'
+import { createCellStairs } from '../../systems/story/CellStairs'
+import { landCellPlayer, stabilizeCellFloor } from '../../systems/story/CellLanding'
+import { createCellRoomDoors } from '../../systems/story/CellRoomDoors'
+import { CellEscapePuzzle } from '../../systems/story/CellEscapePuzzle'
+import { createCellPuzzleInteractions } from '../../systems/story/CellPuzzleInteractions'
+import { createCellPuzzleDecor } from '../../visuals/CellPuzzleDecor'
+import type { DialogueLine } from '../../systems/story/DialogueTypes'
+import { evaluateHiding, hidingLabel } from '../../systems/stealth/HidingSystem'
+import { createCoverIndicators } from '../../visuals/CoverIndicators'
+import type { HidingState } from '../../systems/stealth/HidingSystem'
 
 export class Level01Scene extends Phaser.Scene {
     private player?: Player
     private controls?: InputManager
-    private guard?: Guard
+    private guards: Guard[] = []
     private interactions?: InteractionSystem
     private hideZones: Phaser.Geom.Rectangle[] = []
+    private updateCover?: (state: HidingState, alerted: boolean) => void
     private stealthText?: Phaser.GameObjects.Text
     private detectionText?: Phaser.GameObjects.Text
     private detectionFill?: Phaser.GameObjects.Rectangle
@@ -36,6 +49,9 @@ export class Level01Scene extends Phaser.Scene {
             'prison-tiles',
             'assets/tilesets/prison-tiles.png',
         )
+        this.load.image('cell-key', 'assets/props/cell-key.png')
+        this.load.image('cell-door-closed', 'assets/props/cell-door-closed.png')
+        this.load.image('cell-door-open', 'assets/props/cell-door-open.png')
     }
 
     create(): void {
@@ -58,7 +74,14 @@ export class Level01Scene extends Phaser.Scene {
         background.setTint(0x87939f)
         background.setDepth(-2)
 
-        createPrisonDecor(this, map.widthInPixels)
+        for (const offset of [0, 272, 544]) {
+            createPrisonDecor(this, map.widthInPixels, offset)
+        }
+        for (const [index, name] of ['TẦNG 3 · CHỐT GÁC', 'TẦNG 2 · KHU TRỰC', 'TẦNG 1 · BUỒNG GIAM'].entries()) {
+            this.add.text(720, 160 + index * 272, name, {
+                fontFamily: 'monospace', fontSize: '12px', color: '#94a3b8',
+            }).setOrigin(0.5).setDepth(-1)
+        }
 
         ground.setCollisionByExclusion([-1])
         walls.setCollisionByExclusion([-1])
@@ -87,7 +110,7 @@ export class Level01Scene extends Phaser.Scene {
             throw new Error('Object layer "Objects" is missing')
         }
 
-        const getGuardPoint = (name: string): { x: number; y: number } => {
+        const getMapPoint = (name: string): { x: number; y: number } => {
             const object = objects.objects.find((item) => item.name === name)
 
             if (
@@ -95,30 +118,28 @@ export class Level01Scene extends Phaser.Scene {
                 || object.x === undefined
                 || object.y === undefined
             ) {
-                throw new Error(`Guard point "${name}" is missing`)
+                throw new Error(`Map point "${name}" is missing`)
             }
 
             return { x: object.x, y: object.y }
         }
 
-        const guardSpawn = getGuardPoint('guardSpawn')
-        const patrolLeft = getGuardPoint('guardPatrolLeft')
-        const patrolRight = getGuardPoint('guardPatrolRight')
-
-        if (patrolLeft.x >= patrolRight.x) {
-            throw new Error('Guard patrol left point must precede right point')
-        }
-
-        this.guard = new Guard(this, {
-            ...LEVEL01_STEALTH.guard,
-            spawnX: guardSpawn.x,
-            spawnY: guardSpawn.y,
-            leftX: patrolLeft.x,
-            rightX: patrolRight.x,
+        this.guards = ['guard', 'guard02', 'guard03', 'guard04'].map((prefix) => {
+            const spawn = getMapPoint(`${prefix}Spawn`)
+            const left = getMapPoint(`${prefix}PatrolLeft`)
+            const right = getMapPoint(`${prefix}PatrolRight`)
+            if (left.x >= right.x || spawn.y !== left.y || left.y !== right.y) {
+                throw new Error(`Invalid patrol route: ${prefix}`)
+            }
+            const guard = new Guard(this, {
+                ...LEVEL01_STEALTH.guard,
+                spawnX: spawn.x, spawnY: spawn.y,
+                leftX: left.x, rightX: right.x,
+            })
+            this.physics.add.collider(guard, ground)
+            this.physics.add.collider(guard, walls)
+            return guard
         })
-
-        this.physics.add.collider(this.guard, ground)
-        this.physics.add.collider(this.guard, walls)
 
         const keyObject = objects.objects.find(
             (object) => object.name === 'key',
@@ -126,6 +147,20 @@ export class Level01Scene extends Phaser.Scene {
         const doorObject = objects.objects.find(
             (object) => object.name === 'door',
         )
+        const lanPoint = getMapPoint('lan')
+        const bedObject = objects.objects.find((object) => object.name === 'bed')
+
+        if (
+            !bedObject || bedObject.x === undefined || bedObject.y === undefined ||
+            !bedObject.width || !bedObject.height || bedObject.height < 12
+        ) {
+            throw new Error('Object "bed" is missing or invalid')
+        }
+
+        createCellStoryDecor(this, lanPoint, {
+            x: bedObject.x, y: bedObject.y,
+            width: bedObject.width, height: bedObject.height,
+        })
 
         if (
             !keyObject
@@ -145,8 +180,10 @@ export class Level01Scene extends Phaser.Scene {
             throw new Error('Object "door" is missing or invalid')
         }
 
-// State is recreated whenever this level starts.
+        // A full level restart recreates the story; checkpoint respawn does not.
         const mission = new MissionSystem()
+        const puzzle = new CellEscapePuzzle()
+        let escapeGate: Phaser.GameObjects.Image | undefined
 
         const statusText = this.add.text(12, 50, '', {
             fontFamily: 'monospace',
@@ -158,9 +195,9 @@ export class Level01Scene extends Phaser.Scene {
 
         const refreshStatus = (): void => {
             statusText.setText(
-                `Key: ${mission.hasKey ? 'YES' : 'NO'} | Door: ${
-                    mission.doorOpened ? 'OPEN' : 'LOCKED'
-                }\nObjective: ${mission.getObjective()}`,
+                `Chìa khóa: ${mission.hasKey ? 'CÓ' : 'CHƯA'} | Cửa: ${
+                    mission.doorOpened ? 'MỞ' : 'KHÓA'
+                }\nMục tiêu: ${mission.doorOpened ? puzzle.getObjective() : mission.getObjective()}`,
             )
         }
 
@@ -177,32 +214,69 @@ export class Level01Scene extends Phaser.Scene {
         const keyX = keyObject.x
         const keyY = keyObject.y
 
-        const keyVisual = this.add.rectangle(
-            keyX, keyY, 10, 6, 0xfde047,
-        ).setDepth(1)
+        const keyHook = this.add.graphics().setDepth(1)
+        keyHook.lineStyle(1, 0x9aa7b2)
+        keyHook.lineBetween(doorObject.x + doorObject.width, keyY - 7, keyX, keyY - 7)
+        keyHook.lineBetween(keyX, keyY - 7, keyX, keyY - 3)
+
+        const keyVisual = this.add.image(keyX, keyY, 'cell-key')
+            .setDisplaySize(16, 8)
+            .setDepth(1)
+            .setVisible(false)
+
+        // A gentle pulse makes the tiny collectible easier to notice.
+        const keyPulse = this.tweens.add({
+            targets: keyVisual,
+            alpha: 0.7,
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            paused: true,
+        })
 
         const doorX = doorObject.x + doorObject.width / 2
         const doorY = doorObject.y + doorObject.height / 2
 
-        const doorVisual = this.add.rectangle(
+        const doorVisual = this.add.image(
             doorX,
             doorY,
-            doorObject.width,
-            doorObject.height,
-            0x92400e,
-        ).setDepth(1)
+            'cell-door-closed',
+        )
+            .setDisplaySize(doorObject.width, doorObject.height)
+            .setDepth(1)
 
+        // Create the static body AFTER sizing the image: preserve map bounds.
         this.physics.add.existing(doorVisual, true)
 
         const doorCollider = this.physics.add.collider(
             this.player, doorVisual,
         )
 
-        this.physics.add.collider(this.guard, doorVisual)
+        for (const guard of this.guards) this.physics.add.collider(guard, doorVisual)
+
+        const syncMissionVisuals = (): void => {
+            const showKey = !mission.hasKey
+            keyVisual.setVisible(showKey).setAlpha(1)
+            if (showKey) {
+                keyPulse.restart()
+            } else {
+                keyPulse.pause()
+            }
+
+            doorVisual.setTexture(
+                mission.doorOpened ? 'cell-door-open' : 'cell-door-closed',
+            ).setVisible(true)
+            const doorBody = doorVisual.body as Phaser.Physics.Arcade.StaticBody
+            doorBody.enable = !mission.doorOpened
+            doorCollider.active = !mission.doorOpened
+        }
+
+        syncMissionVisuals()
 
         const detection = new DetectionSystem([ground, walls])
 
-        this.guard.setLineOfSightTest((startX, startY, endX, endY) => {
+        for (const guard of this.guards) {
+        guard.setLineOfSightTest((startX, startY, endX, endY) => {
             const blockers: Phaser.Geom.Rectangle[] = []
 
             if (!mission.doorOpened) {
@@ -217,24 +291,48 @@ export class Level01Scene extends Phaser.Scene {
                 blockers,
             )
         })
+        }
 
         const targets: Interactable[] = [
             {
-                id: 'key',
-                x: keyX,
-                y: keyY,
-                radius: 32,
-                prompt: 'Pick up key',
-                isAvailable: () => !mission.hasKey,
+                id: 'lan', x: lanPoint.x, y: lanPoint.y, radius: 30,
+                prompt: 'Nói chuyện với Lan',
+                isAvailable: () => !mission.hasHairpin,
                 interact: () => {
-                    if (mission.hasKey) {
+                    if (mission.hasHairpin || this.scene.isActive('DialogueScene')) {
                         return
                     }
 
-                    mission.collectKey()
+                    this.player?.setVelocityX(0)
+                    this.input.keyboard?.resetKeys()
+                    this.scene.launch('DialogueScene', {
+                        returnScene: this.scene.key,
+                        lines: LEVEL01_LAN_INTRO,
+                        onComplete: () => {
+                            mission.receiveHairpin()
+                            refreshStatus()
+                            feedbackText.setText('Đã nhận kẹp tóc. Đến song cửa, nhấn E để móc chìa.')
+                        },
+                    })
+                    this.scene.pause()
+                },
+            },
+            {
+                id: 'key',
+                // Interaction is inside the locked cell; artwork is outside.
+                x: doorObject.x - 16,
+                y: doorY,
+                radius: 32,
+                prompt: 'Dùng kẹp tóc móc chìa',
+                isAvailable: () => mission.hasHairpin && !mission.hasKey,
+                interact: () => {
+                    if (!mission.collectKey()) {
+                        return
+                    }
+
                     playSfx(this, 'key')
-                    keyVisual.setVisible(false)
-                    feedbackText.setText('Key collected.')
+                    syncMissionVisuals()
+                    feedbackText.setText('Đã móc được chìa khóa. Nhấn E tại cửa để mở khóa.')
                     refreshStatus()
                 },
             },
@@ -244,7 +342,7 @@ export class Level01Scene extends Phaser.Scene {
                 y: doorY,
                 radius: 32,
                 get prompt(): string {
-                    return mission.hasKey ? 'Unlock door' : 'Check locked door'
+                    return mission.hasKey ? 'Mở khóa cửa' : 'Kiểm tra cửa khóa'
                 },
                 isAvailable: () => !mission.doorOpened,
                 interact: () => {
@@ -253,26 +351,122 @@ export class Level01Scene extends Phaser.Scene {
                     }
 
                     if (!mission.hasKey) {
-                        feedbackText.setText('Locked. Find the key first.')
+                        feedbackText.setText('Cửa bị khóa. Cần tìm chìa khóa trước.')
                         return
                     }
 
                     mission.unlockDoor()
                     playSfx(this, 'interact')
-                    doorCollider.active = false
-                    doorVisual.setVisible(false)
-
-                    const doorBody = doorVisual.body as Phaser.Physics.Arcade.StaticBody
-                    doorBody.enable = false
-                    feedbackText.setText('Door unlocked.')
+                    syncMissionVisuals()
+                    feedbackText.setText('Cửa đã mở. Ra hành lang và tìm chỗ núp.')
                     refreshStatus()
                 },
             },
         ]
 
+        const travel = (point: { x: number; y: number }, label: string): void => {
+                if (!this.player) return
+                const floor = ground.getTileAtWorldXY(point.x, point.y + map.tileHeight)
+                landCellPlayer(this.player, point.x, floor?.pixelY ?? point.y + map.tileHeight)
+                this.cameras.main.centerOn(this.player.x, this.player.y)
+                this.input.keyboard?.resetKeys()
+                feedbackText.setText(label)
+        }
+        const overlayOpen = (): boolean => ['DialogueScene', 'CodeLockScene', 'StoryChoiceScene', 'PauseScene', 'SettingsScene']
+            .some((key) => this.scene.isActive(key))
+        const speak = (lines: readonly DialogueLine[], onComplete: () => void = () => {}): void => {
+            if (overlayOpen()) return
+            this.player?.setVelocity(0, 0)
+            this.input.keyboard?.resetKeys()
+            this.scene.launch('DialogueScene', { returnScene: this.scene.key, lines, onComplete })
+            this.scene.pause()
+        }
+        let refreshCircuit: () => void = () => {}
+        const puzzleChanged = (): void => {
+            refreshStatus()
+            refreshCircuit()
+            if (escapeGate) {
+                escapeGate.setTexture(puzzle.gateUnlocked ? 'cell-door-open' : 'cell-door-closed')
+                const body = escapeGate.body as Phaser.Physics.Arcade.StaticBody
+                body.enable = !puzzle.gateUnlocked
+            }
+        }
+        targets.push(...createCellPuzzleInteractions(puzzle, getMapPoint, () => mission.doorOpened,
+            speak, puzzleChanged, () => {
+                if (overlayOpen()) return
+                if (this.guards.some((guard) => guard.getAlertState() !== 'PATROL')) {
+                    feedbackText.setText('Lính đang cảnh giác. Cắt đuôi và chờ chúng đi tuần rồi mới giải khóa.')
+                    return
+                }
+                this.player?.setVelocity(0, 0)
+                this.input.keyboard?.resetKeys()
+                this.scene.launch('CodeLockScene', {
+                    returnScene: this.scene.key,
+                    notes: puzzle.getLockNotes(),
+                    onSubmit: (code: string): string | null => {
+                        const error = puzzle.submit(code)
+                        if (!error) {
+                            playSfx(this, 'interact')
+                            puzzleChanged()
+                            feedbackText.setText('Cổng đã mở. Đến cửa bên phải để sang khu giám sát.')
+                        }
+                        return error
+                    },
+                })
+                this.scene.pause()
+            },
+            () => {
+                if (overlayOpen()) return
+                this.player?.setVelocity(0, 0)
+                this.input.keyboard?.resetKeys()
+                this.scene.launch('StoryChoiceScene', {
+                    returnScene: this.scene.key,
+                    onSelect: (id: string) => puzzle.confrontArchivist(id),
+                    onSuccess: () => {
+                        puzzleChanged()
+                        feedbackText.setText('Đã chỉ ra mâu thuẫn. Nhấn E với người ghi sổ để nghe lời giải thích và nhận trang gốc.')
+                    },
+                })
+                this.scene.pause()
+            },
+            (message) => feedbackText.setText(message),
+        ))
+        refreshCircuit = createCellPuzzleDecor(this, getMapPoint,
+            () => ({ progress: puzzle.circuitProgress, powered: puzzle.powerReady }))
+        const openJournal = (event?: KeyboardEvent): void => {
+            if (!event?.repeat) speak(puzzle.getJournal())
+        }
+        this.add.text(this.scale.width - 12, this.scale.height - 10, '[ NHẬT KÝ · J ]', {
+            fontFamily: 'monospace', fontSize: '10px', color: '#93c5fd',
+            stroke: '#080d14', strokeThickness: 2,
+        }).setOrigin(1, 1).setScrollFactor(0).setDepth(20)
+            .setInteractive({ useHandCursor: true }).on('pointerdown', () => openJournal())
+        this.input.keyboard?.on('keydown-J', openJournal)
+        targets.push(...createCellStairs(this, getMapPoint, () => mission.doorOpened, travel))
+        targets.push(...createCellRoomDoors(getMapPoint, () => mission.doorOpened, travel))
+        const storyDoor = getMapPoint('roomDoorStory')
+        const guardDoor = getMapPoint('roomDoorStealth')
+        this.add.image((storyDoor.x + guardDoor.x) / 2, storyDoor.y - 12, 'cell-door-closed')
+            .setDisplaySize(16, 48).setDepth(1)
+        this.add.text(808, 438, 'CỬA · NHẤN E', {
+            fontFamily: 'monospace', fontSize: '9px', color: '#93c5fd',
+            stroke: '#080d14', strokeThickness: 2,
+        }).setOrigin(0.5).setDepth(1)
+        for (const room of [{ x: 1120, name: 'PHÒNG HỒ SƠ · AN TOÀN' }, { x: 400, name: 'PHÒNG GÁC · 1 LÍNH' }]) {
+            this.add.text(room.x, 400, room.name, {
+                fontFamily: 'monospace', fontSize: '10px', color: '#cbd5e1',
+            }).setOrigin(0.5).setDepth(1)
+        }
+        const desk = this.add.graphics().setDepth(-1)
+        desk.fillStyle(0x55534a)
+        desk.fillRect(1088, 492, 64, 5)
+        desk.fillRect(1092, 497, 4, 15)
+        desk.fillRect(1144, 497, 4, 15)
+        desk.fillStyle(0xc4bd9b)
+        desk.fillRect(1110, 489, 18, 3)
         this.interactions = new InteractionSystem(this, targets)
 
-// Checkpoint and exit remain preview markers for now.
+        // Hiding recesses and short spatial hints form the corridor route.
         const triggers = map.getObjectLayer('Triggers')
 
         if (!triggers) {
@@ -299,7 +493,8 @@ export class Level01Scene extends Phaser.Scene {
                 )
             })
 
-        this.stealthText = this.add.text(12, 116, 'Stance: STANDING', {
+        this.updateCover = createCoverIndicators(this, this.hideZones)
+        this.stealthText = this.add.text(12, 116, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#93c5fd',
@@ -307,7 +502,7 @@ export class Level01Scene extends Phaser.Scene {
             strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10)
 
-        this.detectionText = this.add.text(12, 132, 'Detection: 0%', {
+        this.detectionText = this.add.text(12, 132, 'Lính: PATROL', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#fef08a',
@@ -344,9 +539,14 @@ export class Level01Scene extends Phaser.Scene {
             },
         ).setScrollFactor(0).setDepth(10)
 
-        const checkpointObject = triggers.objects.find(
-            (object) => object.name === 'cp-01',
+        const checkpointObjects = triggers.objects.filter(
+            (object) => object.name.startsWith('cp-'),
         )
+
+        if (!checkpointObjects.length) throw new Error('Level-01 needs a checkpoint')
+        const checkpointMarkers = new Map<string, Phaser.GameObjects.Rectangle>()
+        let highestCheckpoint = 0
+        for (const [index, checkpointObject] of checkpointObjects.entries()) {
 
         if (
             !checkpointObject
@@ -361,6 +561,10 @@ export class Level01Scene extends Phaser.Scene {
         const checkpointX = checkpointObject.x + checkpointObject.width / 2
         const checkpointY = checkpointObject.y + checkpointObject.height / 2
 
+        if (checkpointObject.name === 'cp-01' && checkpointObject.x < doorObject.x + doorObject.width) {
+            throw new Error('Level-01 checkpoint must be after the cell door')
+        }
+
         const checkpointZone = this.add.zone(
             checkpointX,
             checkpointY,
@@ -371,17 +575,25 @@ export class Level01Scene extends Phaser.Scene {
         this.physics.add.existing(checkpointZone, true)
 
         this.physics.add.overlap(this.player, checkpointZone, () => {
-            const activated = checkpoints.activate('cp-01', {
+            if (!mission.doorOpened || index < highestCheckpoint) {
+                return
+            }
+            const activated = checkpoints.activate(checkpointObject.name, {
                 x: checkpointX,
                 y: checkpointY,
             })
 
             if (activated) {
+                highestCheckpoint = index
+                for (const [name, marker] of checkpointMarkers) {
+                    marker.setFillStyle(name === checkpointObject.name ? 0x22c55e : 0x64748b)
+                }
                 playSfx(this, 'checkpoint')
                 checkpointText.setText(`Checkpoint: ${checkpoints.getLabel()}`)
-                feedbackText.setText('Checkpoint activated.')
+                feedbackText.setText('Đã lưu checkpoint. Nếu bị bắt, cửa vẫn mở.')
             }
         })
+        }
 
         const respawn = (): void => {
             const player = this.player
@@ -390,41 +602,35 @@ export class Level01Scene extends Phaser.Scene {
                 return
             }
 
-            mission.reset()
-
-            keyVisual.setVisible(true)
-            doorVisual.setVisible(true)
-
-            const doorBody = doorVisual.body as Phaser.Physics.Arcade.StaticBody
-            doorBody.enable = true
-            doorCollider.active = true
+            mission.restoreAtCheckpoint(checkpoints.getLabel() !== 'START')
+            syncMissionVisuals()
 
             const point = checkpoints.getSpawn()
             player.body.reset(point.x, point.y)
             player.setVelocity(0, 0)
             player.setCrouching(false)
             player.setAlpha(1)
-            this.guard?.resetGuard()
-            this.detectionText?.setText('Detection: 0%')
+            for (const guard of this.guards) guard.resetGuard()
+            this.detectionText?.setText('Lính: PATROL')
             this.detectionFill?.setScale(0, 1)
 
             refreshStatus()
-            feedbackText.setText('Respawned. Key and door reset.')
+            feedbackText.setText(
+                mission.doorOpened
+                    ? 'Đã trở lại checkpoint. Cửa vẫn mở.'
+                    : 'Đã trở lại phòng giam. Lời nhắc của Lan vẫn được giữ.',
+            )
         }
 
         this.onCaptured = (): void => {
             playSfx(this, 'caught')
             respawn()
-            feedbackText.setText('Captured! Returned to checkpoint.')
+            feedbackText.setText('Bị phát hiện! Đã trở lại checkpoint.')
         }
 
         const hazards = triggers.objects.filter(
             (object) => object.name.startsWith('hazard-'),
         )
-
-        if (hazards.length === 0) {
-            throw new Error('At least one hazard is required for this test')
-        }
 
         for (const object of hazards) {
             if (
@@ -467,10 +673,63 @@ export class Level01Scene extends Phaser.Scene {
                 continue
             }
 
+            if (object.name.startsWith('hint-')) {
+                const message = object.properties?.find(
+                    (property: { name: string; value: unknown }) => property.name === 'message',
+                )?.value
+                if (typeof message !== 'string' || !object.width || !object.height) {
+                    throw new Error(`Story hint "${object.name}" is invalid`)
+                }
+                const zone = this.add.zone(
+                    (object.x ?? 0) + object.width / 2,
+                    (object.y ?? 0) + object.height / 2,
+                    object.width, object.height,
+                )
+                this.physics.add.existing(zone, true)
+                let shown = false
+                this.physics.add.overlap(this.player, zone, () => {
+                    if (shown || !mission.doorOpened) return
+                    shown = true
+                    feedbackText.setText(message)
+                })
+                continue
+            }
+
             const x = object.x ?? 0
             const y = object.y ?? 0
             const width = object.width ?? 0
             const height = object.height ?? 0
+
+            if (object.name.startsWith('hide-')) {
+                // A recessed locker bank, behind the player: no solid body.
+                // Concealment still requires crouching fully inside the zone.
+                const recess = this.add.graphics().setDepth(-1)
+                recess.fillStyle(0x101c26)
+                recess.fillRect(x, y, width, height)
+                recess.lineStyle(2, 0x4b616a)
+                recess.strokeRect(x, y, width, height)
+                for (let offset = 16; offset < width; offset += 16) {
+                    recess.lineBetween(x + offset, y + 2, x + offset, y + height - 2)
+                }
+                this.add.text(x + width / 2, y - 12, 'NÚP', {
+                    fontFamily: 'monospace', fontSize: '8px', color: '#86efac',
+                    stroke: '#080d14', strokeThickness: 2,
+                }).setOrigin(0.5, 0)
+                continue
+            }
+
+            if (object.name.startsWith('cp-')) {
+                // Small floor beacon; the existing overlap zone stays invisible.
+                const marker = this.add.rectangle(x + width / 2, y + height - 6, 8, 12, 0x64748b)
+                    .setStrokeStyle(1, 0x86efac).setDepth(1)
+                checkpointMarkers.set(object.name, marker)
+                this.add.rectangle(x + width / 2, y + height - 1, width, 2, 0x22c55e, 0.5)
+                this.add.text(x + width / 2, y + height - 28, 'ĐIỂM LƯU', {
+                    fontFamily: 'monospace', fontSize: '8px', color: '#86efac',
+                    stroke: '#080d14', strokeThickness: 2,
+                }).setOrigin(0.5).setDepth(1)
+                continue
+            }
 
             this.add.rectangle(
                 x + width / 2,
@@ -481,7 +740,7 @@ export class Level01Scene extends Phaser.Scene {
                 0.2,
             ).setStrokeStyle(1, 0x22c55e)
 
-            this.add.text(x, y - 14, object.name, {
+            this.add.text(x, y - 14, object.name === 'exit' ? '→ KHU GIÁM SÁT' : 'ĐIỂM LƯU', {
                 fontFamily: 'monospace',
                 fontSize: '8px',
                 color: '#e5e7eb',
@@ -510,10 +769,20 @@ export class Level01Scene extends Phaser.Scene {
         )
 
         this.physics.add.existing(exitZone, true)
+        escapeGate = this.add.image(exitObject.x + 8, exitObject.y + exitObject.height / 2, 'cell-door-closed')
+            .setDisplaySize(16, exitObject.height).setDepth(1)
+        this.physics.add.existing(escapeGate, true)
+        this.physics.add.collider(this.player, escapeGate)
+        for (const guard of this.guards) this.physics.add.collider(guard, escapeGate)
+        puzzleChanged()
 
         this.physics.add.overlap(this.player, exitZone, () => {
             if (!mission.hasKey || !mission.doorOpened) {
-                feedbackText.setText('Collect the key and unlock the door first.')
+                feedbackText.setText('Cần tìm chìa khóa và mở cửa trước.')
+                return
+            }
+            if (!puzzle.gateUnlocked) {
+                feedbackText.setText('Cổng khóa. Ghép lời Tuấn với sổ đổi ca, rồi nhập mã tại bảng khóa.')
                 return
             }
 
@@ -529,9 +798,11 @@ export class Level01Scene extends Phaser.Scene {
 
         const camera = this.cameras.main
         camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
-        camera.startFollow(this.player, true)
+        camera.startFollow(this.player, false)
+        // Ignore sub-pixel resting-body corrections instead of moving the whole room.
+        camera.setDeadzone(4, 8)
 
-        this.add.text(12, 12, 'LEVEL 01', {
+        this.add.text(12, 12, 'PHÒNG GIAM 07', {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#e5e7eb',
@@ -562,7 +833,10 @@ export class Level01Scene extends Phaser.Scene {
             .setInteractive({ useHandCursor: true })
 
         const returnToMenu = (event?: KeyboardEvent): void => {
-            if (event?.repeat || this.scene.isActive('PauseScene')) {
+            if (
+                event?.repeat || this.scene.isActive('PauseScene') ||
+                this.scene.isActive('DialogueScene') || this.scene.isActive('CodeLockScene') || this.scene.isActive('StoryChoiceScene')
+            ) {
                 return
             }
 
@@ -601,16 +875,23 @@ export class Level01Scene extends Phaser.Scene {
             ?.setPosition(332, 78)
             .setFontSize(9)
 
+        const settleFloor = (): void => {
+            if (this.player) stabilizeCellFloor(this.player, ground)
+        }
+        this.events.on(Phaser.Scenes.Events.POST_UPDATE, settleFloor)
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.events.off(Phaser.Scenes.Events.POST_UPDATE, settleFloor)
             this.input.keyboard?.off('keydown-ESC', returnToMenu)
+            this.input.keyboard?.off('keydown-J', openJournal)
             this.controls?.destroy()
             this.controls = undefined
             this.player = undefined
             this.interactions?.destroy()
             this.interactions = undefined
             this.hideZones = []
+            this.updateCover = undefined
             this.stealthText = undefined
-            this.guard = undefined
+            this.guards = []
             this.detectionText = undefined
             this.detectionFill = undefined
             this.onCaptured = undefined
@@ -631,50 +912,40 @@ export class Level01Scene extends Phaser.Scene {
             player.jump()
         }
 
-        const bounds = player.getBounds()
         const grounded = Boolean(
             player.body
             && (player.body.blocked.down || player.body.touching.down),
         )
 
-        const insideHideZone = this.hideZones.some((zone) => {
-            return zone.contains(bounds.left, bounds.top)
-                && zone.contains(bounds.right, bounds.bottom)
-        })
-
-        const hidden = player.isCrouching() && grounded && insideHideZone
+        const cover = evaluateHiding(player.body, this.hideZones, player.isCrouching(), grounded)
+        const hidden = cover.hidden
 
         player.setAlpha(hidden ? 0.5 : 1)
 
-        this.stealthText?.setText(
-            `Stance: ${
-                hidden
-                    ? 'HIDDEN'
-                    : player.isCrouching()
-                        ? 'CROUCHING'
-                        : 'STANDING'
-            }`,
-        )
-
-        this.guard?.updateAI(
+        for (const guard of this.guards) {
+        guard.updateAI(
             delta,
             player.x,
             player.y,
             player.isCrouching(),
             hidden,
         )
+        }
 
-        const detection = this.guard?.getDetectionLevel() ?? 0
+        const detection = Math.max(0, ...this.guards.map((guard) => guard.getDetectionLevel()))
+        this.updateCover?.(cover, detection > 0)
+        this.stealthText?.setText(hidingLabel(cover, detection > 0))
+        const alertState = detection === 1 ? 'CHASE' : detection > 0 ? 'SEARCH' : 'PATROL'
 
         this.detectionText?.setText(
-            `Detection: ${Math.round(detection * 100)}%`,
+            `Lính: ${alertState}`,
         )
 
         this.detectionFill
             ?.setScale(detection, 1)
             .setFillStyle(detection >= 0.6 ? 0xef4444 : 0xfacc15)
 
-        if (this.guard?.hasCapturedTarget()) {
+        if (this.guards.some((guard) => guard.hasCapturedTarget(player, hidden))) {
             this.cameras.main.flash(180, 200, 30, 30)
             this.onCaptured?.()
             return

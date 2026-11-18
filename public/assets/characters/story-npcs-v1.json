@@ -1,0 +1,20 @@
+{
+  "textureKey": "story-npcs",
+  "file": "story-npcs-v1.png",
+  "frameWidth": 32,
+  "frameHeight": 48,
+  "visibleHeight": 40,
+  "footRow": 46,
+  "scale": 0.9,
+  "poses": "static idle",
+  "characters": {
+    "lan": 0,
+    "tuan": 1,
+    "archivist": 2,
+    "technician": 3,
+    "cleaner": 4,
+    "food": 5,
+    "worker": 6,
+    "porter": 7
+  }
+}

@@ -3,8 +3,9 @@ import Phaser from 'phaser'
 export function createPrisonDecor(
     scene: Phaser.Scene,
     worldWidth: number,
+    floorOffset = 0,
 ): void {
-    const decor = scene.add.graphics().setDepth(-1)
+    const decor = scene.add.graphics().setDepth(-1).setPosition(0, floorOffset)
 
     // Background utility pipe.
     decor.fillStyle(0x101923)

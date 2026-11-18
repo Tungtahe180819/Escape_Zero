@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { GuardStateMachine } from '../systems/stealth/GuardStateMachine'
-import { DetectionMeter } from '../systems/stealth/DetectionMeter'
+import { guardTouchesTarget } from '../systems/stealth/GuardContact'
+import { CHARACTER_SCALE } from '../config/characterConfig'
 import type { GuardTiming } from '../systems/stealth/GuardStateMachine'
 
 export interface GuardConfig extends GuardTiming {
@@ -13,8 +14,6 @@ export interface GuardConfig extends GuardTiming {
     visionRange: number
     visionHalfAngle: number
     crouchRangeMultiplier: number
-    detectionGainPerSecond: number
-    detectionDecayPerSecond: number
     closeAwarenessRange: number
 }
 
@@ -23,7 +22,8 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
     private readonly brain: GuardStateMachine
     private readonly cone: Phaser.GameObjects.Graphics
     private readonly label: Phaser.GameObjects.Text
-    private readonly detectionMeter: DetectionMeter
+    private lastSeenX: number
+    private lostSightMs = 0
 
     private facing = 1
     private waypointX: number
@@ -38,19 +38,19 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
         super(scene, config.spawnX, config.spawnY, 'guard', 0)
 
         this.config = { ...config }
-        this.detectionMeter = new DetectionMeter(
-            config.detectionGainPerSecond,
-            config.detectionDecayPerSecond,
-        )
+        this.lastSeenX = config.spawnX
         this.waypointX = config.rightX
         this.brain = new GuardStateMachine(config)
 
         scene.add.existing(this)
-        this.setScale(0.5)
+        this.setScale(CHARACTER_SCALE)
+        this.setOrigin(0.5, 1 - 12 / (48 * CHARACTER_SCALE))
 
         scene.physics.add.existing(this)
-        this.setBodySize(32, 48, false)
-        this.setOffset(0, 0)
+        const sourceBodyWidth = 16 / CHARACTER_SCALE
+        const sourceBodyHeight = 24 / CHARACTER_SCALE
+        this.setBodySize(sourceBodyWidth, sourceBodyHeight, false)
+        this.setOffset((32 - sourceBodyWidth) / 2, 48 - sourceBodyHeight)
 
         this.setCollideWorldBounds(true)
         this.setDepth(2)
@@ -82,26 +82,39 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
         targetY: number,
         crouching = false,
         hidden = false,
+        reportedByCamera = false,
     ): void {
         const rangeMultiplier = crouching
             ? this.config.crouchRangeMultiplier
             : 1
 
-        const visible = !hidden && this.canSee(
+        const visible = !hidden && (reportedByCamera || this.canSee(
             targetX, targetY, rangeMultiplier,
-        )
+        ))
 
-        this.detectionMeter.update(visible, delta)
-        this.brain.setTargetVisible(visible)
-        this.brain.update(delta)
+        const stepMs = Number.isFinite(delta) ? Math.min(Math.max(delta, 0), 100) : 0
+        if (visible) {
+            this.lastSeenX = targetX
+            this.lostSightMs = 0
+        } else {
+            this.lostSightMs += stepMs
+        }
+
+        // Follow the last observed position, never an invisible player's live X.
+        const pursuingLastSeen = this.brain.state === 'CHASE'
+            && !visible
+            && Math.abs(this.lastSeenX - this.x) > 4
+            && this.lostSightMs < this.config.searchMs
+        this.brain.setTargetVisible(visible || pursuingLastSeen)
+        this.brain.update(stepMs)
 
         switch (this.brain.state) {
             case 'PATROL':
-                this.patrol(delta)
+                this.patrol(stepMs)
                 break
 
             case 'CHASE':
-                this.walkToward(targetX, this.config.chaseSpeed)
+                this.walkToward(this.lastSeenX, this.config.chaseSpeed)
                 break
 
             case 'SUSPICIOUS':
@@ -123,15 +136,16 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
 
         this.drawVision(visible)
         this.label
-            .setPosition(this.x, this.y - 20)
-            .setText(`${this.brain.state} | ${visible ? 'SEEN' : 'CLEAR'}`)
+            .setPosition(this.x, this.y + 12 - 48 * CHARACTER_SCALE - 3)
+            .setText(`${this.brain.state} | ${reportedByCamera && !hidden ? 'RADIO' : visible ? 'SEEN' : 'CLEAR'}`)
     }
 
     resetGuard(): void {
         this.brain.reset()
         this.facing = 1
         this.waypointX = this.config.rightX
-        this.detectionMeter.reset()
+        this.lastSeenX = this.config.spawnX
+        this.lostSightMs = 0
 
         this.body?.reset(this.config.spawnX, this.config.spawnY)
         this.setVelocity(0, 0)
@@ -229,10 +243,18 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
     }
 
     getDetectionLevel(): number {
-        return this.detectionMeter.value
+        return this.brain.state === 'CHASE' ? 1
+            : this.brain.state === 'SEARCH' || this.brain.state === 'SUSPICIOUS' ? 0.5 : 0
     }
 
-    hasCapturedTarget(): boolean {
-        return this.detectionMeter.full
+    getAlertState(): string {
+        return this.brain.state
+    }
+
+    hasCapturedTarget(target: Phaser.Physics.Arcade.Sprite, hidden = false): boolean {
+        // An unaware patrol passes a concealed player. A guard already alerted
+        // can still catch them on contact while chasing/searching the last sighting.
+        if (hidden && this.brain.state === 'PATROL') return false
+        return guardTouchesTarget(this.body, target.body)
     }
 }

@@ -4,7 +4,7 @@ import type { GuardTiming } from '../systems/stealth/GuardStateMachine'
 
 // Durations use milliseconds; movement uses pixels/second; angles use degrees.
 export const GUARD_TIMING = Object.freeze({
-  suspicionMs: 1500,
+  suspicionMs: 0,
   searchMs: 3000,
 } satisfies GuardTiming)
 
@@ -14,12 +14,10 @@ type CameraTuning = Omit<SurveillanceCameraConfig, 'x' | 'y'>
 const DEFAULT_GUARD = Object.freeze({
   ...GUARD_TIMING,
   patrolSpeed: 40,
-  chaseSpeed: 80,
+  chaseSpeed: 110,
   visionRange: 140,
   visionHalfAngle: 35,
   crouchRangeMultiplier: 0.55,
-  detectionGainPerSecond: 0.4,
-  detectionDecayPerSecond: 0.6,
   closeAwarenessRange: 20,
 } satisfies GuardTuning)
 

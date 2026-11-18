@@ -23,6 +23,7 @@ export class SurveillanceCamera extends Phaser.GameObjects.Rectangle {
 
     private elapsedMs = 0
     private scanAngle: number
+    private targetVisible = false
 
     constructor(
         scene: Phaser.Scene,
@@ -95,6 +96,7 @@ export class SurveillanceCamera extends Phaser.GameObjects.Rectangle {
                 this.x, this.y, targetX, targetY,
             )
 
+        this.targetVisible = visible
         this.meter.update(visible, step)
         this.setRotation(this.scanAngle)
 
@@ -121,22 +123,23 @@ export class SurveillanceCamera extends Phaser.GameObjects.Rectangle {
 
         this.label.setText(
             `CAM ${visible ? 'SEEN' : 'CLEAR'} ${
-                this.meter.full ? '| ALARM' : ''
+                visible ? '| BÁO LÍNH' : ''
             }`,
         )
     }
 
     getDetectionLevel(): number {
-        return this.meter.value
+        return this.targetVisible ? 1 : 0
     }
 
-    hasCapturedTarget(): boolean {
-        return this.meter.full
+    isTargetVisible(): boolean {
+        return this.targetVisible
     }
 
     resetCamera(): void {
         this.elapsedMs = 0
         this.scanAngle = Phaser.Math.DegToRad(this.config.minAngle)
         this.meter.reset()
+        this.targetVisible = false
     }
 }

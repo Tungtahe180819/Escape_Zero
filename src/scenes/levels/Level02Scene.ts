@@ -9,7 +9,11 @@ import { SurveillanceCamera } from '../../entities/SurveillanceCamera'
 import { CheckpointSystem } from '../../systems/progress/CheckpointSystem'
 import { InteractionSystem } from '../../systems/interaction/InteractionSystem'
 import { saveSystem } from '../../systems/progress/SaveSystem'
-import { createCorridorDecor } from '../../visuals/CorridorDecor'
+import { createCorridorDecor, createCorridorHidingPlaces } from '../../visuals/CorridorDecor'
+import { evaluateHiding, hidingLabel } from '../../systems/stealth/HidingSystem'
+import { createCoverIndicators } from '../../visuals/CoverIndicators'
+import { NightShiftMission } from '../../systems/story/NightShiftMission'
+import { createNightShiftGameplay } from '../../systems/story/NightShiftGameplay'
 
 export class Level02Scene extends Phaser.Scene {
     constructor() {
@@ -46,6 +50,7 @@ export class Level02Scene extends Phaser.Scene {
         background.setTint(0x87939f)
         background.setDepth(-2)
         createCorridorDecor(this, map.widthInPixels)
+        createCorridorDecor(this, map.widthInPixels, 272)
 
         ground.setCollisionByExclusion([-1])
         walls.setCollisionByExclusion([-1])
@@ -95,15 +100,21 @@ export class Level02Scene extends Phaser.Scene {
             leftX: left.x,
             rightX: right.x,
         })
+        const workSpawn = getPoint('guardWorkSpawn')
+        const workGuard = new Guard(this, {
+            ...LEVEL02_STEALTH.guard, spawnX: workSpawn.x, spawnY: workSpawn.y,
+            leftX: getPoint('guardWorkLeft').x, rightX: getPoint('guardWorkRight').x,
+        })
+        const guards = [guard, workGuard]
 
-        for (const actor of [player, guard]) {
+        for (const actor of [player, ...guards]) {
             this.physics.add.collider(actor, ground)
             this.physics.add.collider(actor, walls)
         }
 
         const detection = new DetectionSystem([ground, walls])
 
-        guard.setLineOfSightTest((x1, y1, x2, y2) => {
+        for (const guard of guards) guard.setLineOfSightTest((x1, y1, x2, y2) => {
             return detection.hasClearLine(x1, y1, x2, y2)
         })
 
@@ -125,6 +136,7 @@ export class Level02Scene extends Phaser.Scene {
 
             if (object.name.startsWith('hide-')) {
                 hideZones.push(bounds)
+                continue
             }
 
             this.add.rectangle(
@@ -132,11 +144,11 @@ export class Level02Scene extends Phaser.Scene {
                 bounds.centerY,
                 bounds.width,
                 bounds.height,
-                0x22c55e,
+                object.name.startsWith('hide-') ? 0x172b34 : 0x22c55e,
                 0.15,
-            ).setStrokeStyle(1, 0x22c55e)
+            ).setStrokeStyle(1, object.name.startsWith('hide-') ? 0x4b616a : 0x22c55e)
 
-            this.add.text(bounds.x, bounds.y - 12, object.name, {
+            this.add.text(bounds.x, bounds.y - 12, object.name.startsWith('hide-') ? 'NÚP' : object.name === 'exit' ? 'KỸ THUẬT · CẤM VÀO' : 'ĐIỂM LƯU', {
                 fontFamily: 'monospace',
                 fontSize: '8px',
                 color: '#e5e7eb',
@@ -144,6 +156,8 @@ export class Level02Scene extends Phaser.Scene {
         }
 
         const cameraPoint = getPoint('cameraSpawn')
+        const updateCover = createCoverIndicators(this, hideZones)
+        const updateCoverLabels = createCorridorHidingPlaces(this, hideZones)
 
         const surveillance = new SurveillanceCamera(this, {
             ...LEVEL02_STEALTH.camera,
@@ -151,17 +165,12 @@ export class Level02Scene extends Phaser.Scene {
             y: cameraPoint.y,
         }, detection)
 
-        let switchActivated = false
         let levelCompleted = false
-
-        const switchPoint = getPoint('switch')
-
-        const switchVisual = this.add.rectangle(
-            switchPoint.x, switchPoint.y, 12, 16, 0xef4444,
-        ).setDepth(1)
+        let bridgeReady = false
+        const mission = new NightShiftMission()
 
         const objective = this.add.text(
-            12, 46, 'Objective: Activate the switch',
+            12, 46, '',
             {
                 fontFamily: 'monospace',
                 fontSize: '9px',
@@ -174,34 +183,13 @@ export class Level02Scene extends Phaser.Scene {
 
         const refreshObjective = (): void => {
             objective.setText(
-                switchActivated
-                    ? 'Switch: ON\nObjective: Reach the exit'
-                    : 'Switch: OFF\nObjective: Activate the switch',
+                `Mục tiêu: ${mission.objective()}\nDữ liệu: ${mission.found.size}/3 · Đã chép: ${mission.copied.size}/3 · USB: ${mission.usbReceived ? 'CÓ' : 'CHƯA'}`,
             )
         }
 
         refreshObjective()
 
-        const interactions = new InteractionSystem(this, [
-            {
-                id: 'switch',
-                x: switchPoint.x,
-                y: switchPoint.y,
-                radius: 32,
-                prompt: 'Activate switch',
-                isAvailable: () => !switchActivated && !levelCompleted,
-                interact: () => {
-                    if (switchActivated || levelCompleted) {
-                        return
-                    }
-
-                    switchActivated = true
-                    playSfx(this, 'interact')
-                    switchVisual.setFillStyle(0x22c55e)
-                    refreshObjective()
-                },
-            },
-        ])
+        let interactions: InteractionSystem
 
         const exitObject = triggers.objects.find(
             (object) => object.name === 'exit',
@@ -228,9 +216,9 @@ export class Level02Scene extends Phaser.Scene {
         this.cameras.main.setBounds(
             0, 0, map.widthInPixels, map.heightInPixels,
         )
-        this.cameras.main.startFollow(player, true)
+        this.cameras.main.startFollow(player, false)
 
-        this.add.text(12, 12, 'LEVEL 02', {
+        this.add.text(12, 12, 'LEVEL 02 · CA TRỰC', {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#e5e7eb',
@@ -246,7 +234,7 @@ export class Level02Scene extends Phaser.Scene {
             strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10)
 
-        const status = this.add.text(332, 62, 'Stance: STANDING', {
+        const status = this.add.text(332, 62, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'monospace',
             fontSize: '9px',
             color: '#93c5fd',
@@ -303,7 +291,7 @@ export class Level02Scene extends Phaser.Scene {
 
         this.physics.add.existing(checkpointZone, true)
 
-        const guardStatus = this.add.text(332, 110, 'Guard: 0%', {
+        const guardStatus = this.add.text(332, 110, 'Guard: PATROL', {
             fontFamily: 'monospace',
             fontSize: '9px',
             color: '#fef08a',
@@ -343,8 +331,12 @@ export class Level02Scene extends Phaser.Scene {
             strokeThickness: 2,
             wordWrap: { width: 300 },
         }).setScrollFactor(0).setDepth(10)
+        const story = createNightShiftGameplay(this, player, mission, getPoint,
+            (text) => feedback.setText(text), refreshObjective, () => { bridgeReady = true })
+        interactions = new InteractionSystem(this, story.targets)
 
         this.physics.add.overlap(player, checkpointZone, () => {
+            if (checkpoints.getLabel() === 'cp-work') return
             if (checkpoints.activate('cp-02', {
                 x: checkpointX,
                 y: checkpointY,
@@ -352,6 +344,16 @@ export class Level02Scene extends Phaser.Scene {
                 checkpointStatus.setText(`Checkpoint: ${checkpoints.getLabel()}`)
                 playSfx(this, 'checkpoint')
                 feedback.setText('Checkpoint activated.')
+            }
+        })
+        const workCheckpoint = getPoint('workCheckpoint')
+        const workZone = this.add.zone(workCheckpoint.x, workCheckpoint.y, 48, 32)
+        this.physics.add.existing(workZone, true)
+        this.add.text(workCheckpoint.x, workCheckpoint.y - 30, 'ĐIỂM LƯU · KHU LÀM VIỆC', { fontFamily: 'monospace', fontSize: '8px', color: '#86efac' }).setOrigin(0.5)
+        this.physics.add.overlap(player, workZone, () => {
+            if (checkpoints.activate('cp-work', workCheckpoint)) {
+                checkpointStatus.setText('Checkpoint: cp-work'); playSfx(this, 'checkpoint')
+                feedback.setText('Đã lưu ở khu làm việc. Manh mối và các phần chép xong được giữ khi hồi sinh.')
             }
         })
 
@@ -364,8 +366,7 @@ export class Level02Scene extends Phaser.Scene {
                 return
             }
 
-            switchActivated = false
-            switchVisual.setFillStyle(0xef4444)
+            mission.interruptCopy()
             refreshObjective()
 
             const point = checkpoints.getSpawn()
@@ -375,15 +376,15 @@ export class Level02Scene extends Phaser.Scene {
             player.setCrouching(false)
             player.setAlpha(1)
 
-            guard.resetGuard()
+            for (const guard of guards) guard.resetGuard()
             surveillance.resetCamera()
 
             cameraStatus.setText('Camera: 0%')
             cameraFill.setScale(0, 1)
-            guardStatus.setText('Guard: 0%')
+            guardStatus.setText('Guard: PATROL')
             guardFill.setScale(0, 1)
 
-            status.setText('Stance: STANDING')
+            status.setText('NGOÀI CHỖ NÚP')
             feedback.setText(message)
         }
 
@@ -403,7 +404,7 @@ export class Level02Scene extends Phaser.Scene {
             })
 
         const returnToMenu = (event?: KeyboardEvent): void => {
-            if (event?.repeat || this.scene.isActive('PauseScene')) {
+            if (event?.repeat || story.overlayOpen()) {
                 return
             }
 
@@ -430,6 +431,10 @@ export class Level02Scene extends Phaser.Scene {
         this.input.keyboard?.on('keydown-ESC', returnToMenu)
 
         const updatePreview = (_time: number, delta: number): void => {
+            if (bridgeReady) {
+                this.scene.start('LevelCompleteScene', { levelId: 'level-02' })
+                return
+            }
             if (levelCompleted) {
                 return
             }
@@ -441,33 +446,15 @@ export class Level02Scene extends Phaser.Scene {
                 player.jump()
             }
 
-            const bounds = player.getBounds()
             const grounded = Boolean(
                 player.body
                 && (player.body.blocked.down || player.body.touching.down),
             )
 
-            const insideHideZone = hideZones.some((zone) => {
-                return zone.contains(bounds.left, bounds.top)
-                    && zone.contains(bounds.right, bounds.bottom)
-            })
-
-            const hidden = player.isCrouching() && grounded && insideHideZone
+            const cover = evaluateHiding(player.body, hideZones, player.isCrouching(), grounded)
+            const hidden = cover.hidden
 
             player.setAlpha(hidden ? 0.5 : 1)
-            status.setText(
-                `Stance: ${
-                    hidden ? 'HIDDEN' : player.isCrouching() ? 'CROUCHING' : 'STANDING'
-                }`,
-            )
-
-            guard.updateAI(
-                delta,
-                player.x,
-                player.y,
-                player.isCrouching(),
-                hidden,
-            )
 
             surveillance.updateScan(
                 delta,
@@ -475,28 +462,33 @@ export class Level02Scene extends Phaser.Scene {
                 player.y,
                 hidden,
             )
+            const cameraSeesMinh = surveillance.isTargetVisible()
+            for (const guard of guards) guard.updateAI(delta, player.x, player.y, player.isCrouching(), hidden, cameraSeesMinh)
 
             const cameraLevel = surveillance.getDetectionLevel()
 
             cameraStatus.setText(
                 `Camera: ${Math.round(cameraLevel * 100)}%${
-                    surveillance.hasCapturedTarget() ? ' | ALARM' : ''
+                    cameraSeesMinh ? ' | BÁO TOÀN BỘ LÍNH' : ''
                 }`,
             )
 
             cameraFill
                 .setScale(cameraLevel, 1)
                 .setFillStyle(cameraLevel >= 0.6 ? 0xef4444 : 0x38bdf8)
-            const guardLevel = guard.getDetectionLevel()
+            const guardLevel = Math.max(...guards.map((guard) => guard.getDetectionLevel()))
+            updateCover(cover, guardLevel > 0)
+            updateCoverLabels(cover, guardLevel > 0)
+            status.setText(hidingLabel(cover, guardLevel > 0))
 
-            guardStatus.setText(`Guard: ${Math.round(guardLevel * 100)}%`)
+            guardStatus.setText(`Guard: ${guardLevel === 1 ? 'CHASE' : guardLevel > 0 ? 'SEARCH' : 'PATROL'}`)
 
             guardFill
                 .setScale(guardLevel, 1)
                 .setFillStyle(guardLevel >= 0.6 ? 0xef4444 : 0xfacc15)
 
-            if (guard.hasCapturedTarget() || surveillance.hasCapturedTarget()) {
-                const source = guard.hasCapturedTarget() ? 'guard' : 'camera'
+            if (guards.some((guard) => guard.hasCapturedTarget(player, hidden))) {
+                const source = 'guard'
                 playSfx(this, 'caught')
 
                 this.cameras.main.flash(180, 200, 30, 30)
@@ -508,22 +500,22 @@ export class Level02Scene extends Phaser.Scene {
                 player.y,
                 controls.isInteractPressed(),
             )
+            story.tick(delta)
 
             const insideExit = Phaser.Geom.Intersects.RectangleToRectangle(
                 player.getBounds(),
                 exitBounds,
             )
 
-            if (insideExit) {
-                if (!switchActivated) {
-                    feedback.setText('Exit locked. Activate the switch first.')
+            if (insideExit && !levelCompleted) {
+                if (!mission.usbReceived) {
+                    feedback.setText(`Chưa thể rời khu làm việc. ${mission.objective()}`)
                 } else {
                     levelCompleted = true
                     player.setVelocity(0, 0)
 
-                    this.scene.start('LevelCompleteScene', {
-                        levelId: 'level-02',
-                    })
+                    mission.interruptCopy()
+                    story.finish()
                 }
             }
         }
@@ -535,6 +527,7 @@ export class Level02Scene extends Phaser.Scene {
             this.input.keyboard?.off('keydown-ESC', returnToMenu)
             controls.destroy()
             interactions.destroy()
+            story.destroy()
         })
     }
 }

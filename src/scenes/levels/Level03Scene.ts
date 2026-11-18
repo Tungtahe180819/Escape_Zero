@@ -3,11 +3,21 @@ import { playSfx } from '../../systems/audio/AudioSystem'
 import { Player } from '../../entities/Player'
 import { InputManager } from '../../systems/input/InputManager'
 import { CheckpointSystem } from '../../systems/progress/CheckpointSystem'
-import { MovingPlatform } from '../../entities/MovingPlatform'
-import { LEVEL03_PLATFORM, LEVEL03_PURSUIT, } from '../../config/level03Config'
+import { Drawbridge } from '../../entities/Drawbridge'
+import { LEVEL03_PURSUIT } from '../../config/level03Config'
 import { ScriptedPursuit } from '../../entities/ScriptedPursuit'
 import { saveSystem } from '../../systems/progress/SaveSystem'
 import { createOutdoorDecor } from '../../visuals/OutdoorDecor'
+import { createPursuitRoute } from '../../systems/pursuit/PursuitRoute'
+import { FinalFenceGameplay } from '../../systems/story/FinalFenceGameplay'
+import { Guard } from '../../entities/Guard'
+import { LEVEL02_STEALTH } from '../../config/stealthConfig'
+import { drawYardCrate, drawDrainPit, labelOutdoorAreas } from '../../visuals/FinalFenceDecor'
+import { FenceExitEffects } from '../../visuals/FenceExitEffects'
+import { level03X } from '../../config/level03Layout'
+import { SurveillanceCamera } from '../../entities/SurveillanceCamera'
+import { DetectionSystem } from '../../systems/stealth/DetectionSystem'
+import { YardDogAI } from '../../systems/stealth/YardDogAI'
 
 export class Level03Scene extends Phaser.Scene {
     constructor() {
@@ -69,48 +79,49 @@ export class Level03Scene extends Phaser.Scene {
         const controls = new InputManager(this)
         const player = new Player(this, spawn.x, spawn.y)
         player.setDepth(2)
+        const story = new FinalFenceGameplay(this, player)
+        labelOutdoorAreas(this)
+        const yardGuards = [new Guard(this, {
+            ...LEVEL02_STEALTH.guard, spawnX: level03X(704), spawnY: 276, leftX: level03X(576), rightX: level03X(1056),
+        })]
+        for (const guard of yardGuards) {
+            this.physics.add.collider(guard, ground)
+            this.physics.add.collider(guard, walls)
+        }
+        const crateArt = [592, 816, 1080].map(x => drawYardCrate(this, level03X(x)))
+        const covers = [592, 816, 1080].map(x => new Phaser.Geom.Rectangle(level03X(x) - 24, 240, 48, 48))
+        const coverHint = this.add.text(0, 0, '', {
+            fontFamily: 'monospace', fontSize: '9px', color: '#cbd5e1',
+            stroke: '#0c141b', strokeThickness: 3,
+        }).setOrigin(0.5, 1).setDepth(6)
+        const coverRim = this.add.graphics().setDepth(4)
+        const yardDetection = new DetectionSystem([ground, walls])
+        const yardCamera = new SurveillanceCamera(this, {
+            ...LEVEL02_STEALTH.camera, x: level03X(832), y: 112, range: 280,
+        }, yardDetection)
+        const dogAI = new YardDogAI(level03X(960), level03X(544) + 16, level03X(1152) - 16)
+        const dogLabel = this.add.text(0, 0, '', {
+            fontFamily: 'monospace', fontSize: '7px', color: '#d9c39b', stroke: '#0c141b', strokeThickness: 3,
+        }).setOrigin(0.5, 1).setDepth(5)
+        // A dog silhouette uses native shapes, pending final animal artwork.
+        const dog = this.add.container(level03X(960), 288, [
+            this.add.rectangle(0, -7, 18, 9, 0x9a7955),
+            this.add.rectangle(10, -11, 8, 9, 0x9a7955),
+            this.add.triangle(9, -18, 0, 6, 3, 0, 6, 6, 0x9a7955),
+            this.add.rectangle(-6, -2, 3, 8, 0x9a7955),
+            this.add.rectangle(6, -2, 3, 8, 0x9a7955),
+            this.add.rectangle(-12, -12, 8, 3, 0x9a7955),
+        ]).setDepth(2)
 
         this.physics.add.collider(player, ground)
         this.physics.add.collider(player, walls)
 
-        const platformObject = objects.objects.find(
-            (object) => object.name === 'moving-platform',
+        const bridgeRoute = createPursuitRoute(ground.layer.data, map.tileWidth, map.tileHeight)
+        const bridgeGap = bridgeRoute.gaps.reduce((widest, gap) =>
+            gap.right - gap.left > widest.right - widest.left ? gap : widest,
         )
-
-        const platformEnd = objects.objects.find(
-            (object) => object.name === 'platformEnd',
-        )
-
-        if (
-            !platformObject
-            || platformObject.x === undefined
-            || platformObject.y === undefined
-            || !platformObject.width
-            || !platformObject.height
-            || !platformEnd
-            || platformEnd.x === undefined
-            || platformEnd.y === undefined
-        ) {
-            throw new Error('Moving platform map objects are missing or invalid')
-        }
-
-        const platformX = platformObject.x + platformObject.width / 2
-        const platformY = platformObject.y + platformObject.height / 2
-
-        if (Math.abs(platformEnd.y - platformY) > 0.01) {
-            throw new Error('Moving platform route must be horizontal')
-        }
-
-        const movingPlatform = new MovingPlatform(this, {
-            x: platformX,
-            y: platformY,
-            width: platformObject.width,
-            height: platformObject.height,
-            endX: platformEnd.x,
-            speed: LEVEL03_PLATFORM.speed,
-        })
-
-        this.physics.add.collider(player, movingPlatform)
+        const bridge = new Drawbridge(this, bridgeGap.left, bridgeGap.right, bridgeRoute.groundY)
+        this.physics.add.collider(player, bridge.surface)
 
         const checkpoints = new CheckpointSystem({
             x: spawn.x,
@@ -129,7 +140,7 @@ export class Level03Scene extends Phaser.Scene {
             strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10)
 
-        this.add.text(12, 30, 'A/D: Move | Space: Jump | Esc: Pause', {
+        this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
             fontFamily: 'monospace',
             fontSize: '8px',
             color: '#e5e7eb',
@@ -187,6 +198,12 @@ export class Level03Scene extends Phaser.Scene {
         const chaseStart = getChaseBounds('chase-start')
         const chaseEnd = getChaseBounds('chase-end')
         const finishBounds = getChaseBounds('finish')
+        const fenceEffects = new FenceExitEffects(this, chaseStart.left - 20, finishBounds)
+        let wasFenceOff = false
+        const exitDirection = this.add.text(12, 116, '', {
+            fontFamily: 'monospace', fontSize: '9px', color: '#a5e0b5',
+            stroke: '#080d14', strokeThickness: 2,
+        }).setScrollFactor(0).setDepth(10)
 
         if (finishBounds.left < chaseEnd.right) {
             throw new Error('Finish must be after the chase end')
@@ -196,9 +213,15 @@ export class Level03Scene extends Phaser.Scene {
             throw new Error('Chase end must be after chase start')
         }
 
+        const pursuitRoute = createPursuitRoute(
+            ground.layer.data,
+            map.tileWidth,
+            map.tileHeight,
+        )
+
         const pursuit = new ScriptedPursuit(this, {
             ...LEVEL03_PURSUIT,
-            worldHeight: map.heightInPixels,
+            ...pursuitRoute,
         })
 
         const chaseStatus = this.add.text(332, 62, 'Pursuit: READY', {
@@ -209,25 +232,7 @@ export class Level03Scene extends Phaser.Scene {
             strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10)
 
-        for (const [name, bounds] of [
-            ['CHASE START', chaseStart],
-            ['CHASE END', chaseEnd],
-        ] as const) {
-            this.add.rectangle(
-                bounds.centerX,
-                bounds.centerY,
-                bounds.width,
-                bounds.height,
-                0xf97316,
-                0.15,
-            ).setStrokeStyle(1, 0xf97316)
-
-            this.add.text(bounds.x, bounds.y - 12, name, {
-                fontFamily: 'monospace',
-                fontSize: '8px',
-                color: '#e5e7eb',
-            })
-        }
+        // Chase triggers remain invisible; the alarm and pursuit provide feedback.
 
         const respawn = (): void => {
             if (levelCompleted || recovering || !player.body) {
@@ -239,8 +244,16 @@ export class Level03Scene extends Phaser.Scene {
             const point = checkpoints.getSpawn()
             player.body.reset(point.x, point.y)
             player.setVelocity(0, 0)
-            movingPlatform.resetPlatform()
+            bridge.setProgress(story.mission.bridgeProgress)
             pursuit.resetPursuit()
+            story.mission.retry()
+            wasFenceOff = false
+            fenceEffects.update(0, false, false)
+            exitDirection.setText('')
+            for (const guard of yardGuards) guard.resetGuard()
+            yardCamera.resetCamera()
+            dogAI.reset()
+            dog.setPosition(dogAI.x, 288)
             chaseStatus.setText('Pursuit: READY')
             objective.setText('Objective: Cross the yard and reach safety.')
             player.setCrouching(false)
@@ -274,15 +287,12 @@ export class Level03Scene extends Phaser.Scene {
             const x = object.x + object.width / 2
             const y = object.y + object.height / 2
 
-            const marker = this.add.rectangle(
-                x, y, object.width, object.height, 0x22c55e, 0.2,
-            ).setStrokeStyle(1, 0x22c55e)
-
-            this.add.text(object.x, object.y - 12, object.name, {
+            const marker = this.add.rectangle(x, 285, 12, 4, 0x738482)
+            this.add.text(x, 299, 'ĐIỂM LƯU', {
                 fontFamily: 'monospace',
                 fontSize: '8px',
                 color: '#e5e7eb',
-            })
+            }).setOrigin(0.5)
 
             const zone = this.add.zone(x, y, object.width, object.height)
             this.physics.add.existing(zone, true)
@@ -296,7 +306,7 @@ export class Level03Scene extends Phaser.Scene {
                 highestCheckpoint = index
                 checkpoints.activate(object.name, { x, y })
                 playSfx(this, 'checkpoint')
-                marker.setFillStyle(0x22c55e, 0.5)
+                marker.setFillStyle(0x86c5a1)
                 status.setText(`Checkpoint: ${checkpoints.getLabel()}`)
                 feedback.setText('Checkpoint activated.')
             })
@@ -325,8 +335,10 @@ export class Level03Scene extends Phaser.Scene {
                 object.y + object.height / 2,
                 object.width,
                 object.height,
-                0xef4444,
+                0x111d24,
+                0,
             ).setDepth(1)
+            drawDrainPit(this, object.x, object.y, object.width, object.height)
 
             this.physics.add.existing(hazard, true)
             this.physics.add.overlap(player, hazard, respawn)
@@ -335,7 +347,7 @@ export class Level03Scene extends Phaser.Scene {
         this.cameras.main.setBounds(
             0, 0, map.widthInPixels, map.heightInPixels,
         )
-        this.cameras.main.startFollow(player, true)
+        this.cameras.main.startFollow(player, false)
 
         const returnToMenu = (event?: KeyboardEvent): void => {
             if (event?.repeat || this.scene.isActive('PauseScene')) {
@@ -387,9 +399,14 @@ export class Level03Scene extends Phaser.Scene {
                 return
             }
 
+            story.mission.tickBridge(delta)
+            bridge.setProgress(story.mission.bridgeProgress)
+
+            player.setCrouching(controls.isCrouchHeld())
             player.move(controls.getHorizontalAxis())
 
-            if (controls.isJumpPressed()) {
+            const jumped = controls.isJumpPressed()
+            if (jumped) {
                 player.jump()
             }
 
@@ -399,9 +416,69 @@ export class Level03Scene extends Phaser.Scene {
             }
 
             const bounds = player.getBounds()
+            const body = player.body as Phaser.Physics.Arcade.Body
+            const coverIndex = covers.findIndex(cover => body.left >= cover.left && body.right <= cover.right
+                && body.top >= cover.top && body.bottom <= cover.bottom + 1)
+            const hidden = player.isCrouching() && body.blocked.down && coverIndex >= 0
+            const alerted = yardGuards.some(guard => guard.getDetectionLevel() > 0) || dogAI.state !== 'PATROL'
+            player.setAlpha(hidden ? 0.45 : 1)
+            coverRim.clear()
+            crateArt.forEach((art, index) => art.setAlpha(hidden && index === coverIndex ? 0.65 : 1))
+            coverHint.setVisible(coverIndex >= 0)
+            if (coverIndex >= 0) {
+                const cover = covers[coverIndex]
+                const color = hidden ? alerted ? 0xe1b773 : 0x86c5a1 : 0xb8c4c5
+                coverHint.setPosition(cover.centerX, 247).setColor(hidden ? alerted ? '#e1b773' : '#86c5a1' : '#b8c4c5')
+                    .setText(hidden ? alerted ? 'ĐANG NÚP — LÍNH CÒN TÌM KIẾM' : 'ĐÃ ẨN — KHUẤT TẦM NHÌN' : '[Giữ S] Núp sau kiện hàng')
+                coverRim.lineStyle(1, color, 0.8).strokeRect(cover.x, 255, cover.width, 33)
+            }
+            yardCamera.updateScan(delta, player.x, player.y, hidden)
+            dogAI.update(delta, {
+                x: player.x, y: player.y, hidden,
+                noisy: !player.isCrouching() && Math.abs(body.velocity.x) > 70,
+                jumped: jumped && body.velocity.y < 0,
+                clearLine: yardDetection.hasClearLine(dogAI.x, 276, player.x, player.y),
+            })
+            dog.setPosition(dogAI.x, 288).setScale(dogAI.facing, 1)
+            dogLabel.setPosition(dogAI.x, 260).setText(dogAI.label())
+            const reported = yardCamera.isTargetVisible() || dogAI.seesTarget
+            for (const guard of yardGuards) {
+                guard.updateAI(delta, player.x, player.y, player.isCrouching(), hidden, reported)
+                // Keep yard patrols away from the pit edges.
+                guard.x = Phaser.Math.Clamp(guard.x, level03X(560), level03X(1104))
+                if (guard.hasCapturedTarget(player, hidden)) { respawn(); return }
+            }
+            if (!(hidden && dogAI.state === 'PATROL') && body.left <= dogAI.x + 14 && body.right >= dogAI.x - 14 && body.bottom > 274) {
+                respawn()
+                feedback.setText('Chó đã chạm tới Minh. Đi chậm bằng S để tránh gây tiếng động; khuất mắt rồi mới núp.')
+                return
+            }
+            story.update(controls.isInteractPressed())
+            if (!this.scene.isActive()) return
+            if (story.mission.tick(delta)) {
+                respawn()
+                feedback.setText('Điện đã trở lại. Giữ kết quả giải đố; kéo cầu dao để thử lại.')
+                return
+            }
+            const fenceOff = story.mission.running || story.mission.escaped
+            fenceEffects.update(delta, fenceOff, pursuit.getState() === 'FINISHED')
+            if (fenceOff && !wasFenceOff) {
+                feedback.setText('ĐÃ NGẮT ĐIỆN HÀNG RÀO! Qua cổng mở, chạy tới khe rào cuối sân →')
+            }
+            wasFenceOff = fenceOff
+            exitDirection.setText(fenceOff ? player.x < finishBounds.left - 120
+                ? 'LỐI THOÁT → Khe rào cuối sân'
+                : 'LỐI THOÁT NGAY PHÍA TRƯỚC → Đi vào khe rào' : '')
+            // The powered fence cannot be crossed before the deliberate breaker action.
+            if (!story.mission.running && !story.mission.escaped && player.x > chaseStart.left - 20) {
+                player.body?.reset(chaseStart.left - 24, player.y)
+                player.setVelocityX(0)
+                feedback.setText('Hàng rào còn điện. Hoàn tất chuẩn bị rồi kéo cầu dao.')
+            }
 
             if (
                 pursuit.getState() === 'IDLE'
+                && story.mission.running
                 && Phaser.Geom.Intersects.RectangleToRectangle(bounds, chaseStart)
             ) {
                 pursuit.start(chaseStart.left)
@@ -423,7 +500,7 @@ export class Level03Scene extends Phaser.Scene {
                 && Phaser.Geom.Intersects.RectangleToRectangle(bounds, chaseEnd)
             ) {
                 pursuit.finish()
-                feedback.setText('Pursuit escaped.')
+                feedback.setText('Đã thoát lính! Đi tiếp qua khe rào có biển LỐI THOÁT →')
             }
 
             const pursuitState = pursuit.getState()
@@ -434,13 +511,7 @@ export class Level03Scene extends Phaser.Scene {
                         ? 'Pursuit: ESCAPED'
                         : 'Pursuit: READY',
             )
-            objective.setText(
-                pursuitState === 'ACTIVE'
-                    ? 'Objective: Run right and escape the pursuit!'
-                    : pursuitState === 'FINISHED'
-                        ? 'Objective: Reach the safe zone.'
-                        : 'Objective: Cross the yard and reach safety.',
-            )
+            objective.setText(story.mission.objective())
 
             if (
                 pursuit.getState() === 'FINISHED'
@@ -451,7 +522,9 @@ export class Level03Scene extends Phaser.Scene {
             ) {
                 levelCompleted = true
                 player.setVelocity(0, 0)
-                this.scene.start('DemoCompleteScene')
+                story.mission.finish()
+                this.scene.start('Level03EndingScene', { helpedPorter: story.mission.bagReturned })
+                return
             }
         }
 

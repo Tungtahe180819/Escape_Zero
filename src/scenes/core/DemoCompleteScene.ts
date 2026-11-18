@@ -12,13 +12,13 @@ export class DemoCompleteScene extends Phaser.Scene {
         saveSystem.completeLevel(3)
         const centerX = this.scale.width / 2
 
-        this.add.text(centerX, 35, 'ESCAPE ZERO - DEMO COMPLETE', {
+        this.add.text(centerX, 35, 'ESCAPE ZERO — LỜI HỨA CÒN LẠI', {
             fontFamily: 'monospace',
-            fontSize: '18px',
+            fontSize: '16px',
             color: '#86efac',
         }).setOrigin(0.5)
 
-        this.add.text(centerX, 70, 'You reached the safe zone.', {
+        this.add.text(centerX, 70, 'CỬA 09 — CÒN TIẾP', {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#e5e7eb',
@@ -27,7 +27,7 @@ export class DemoCompleteScene extends Phaser.Scene {
         this.add.text(
             centerX,
             100,
-            'Thanks for playing!\nBuilt with Phaser 3, TypeScript and Vite.',
+            '“Ra được ngoài chưa phải là thoát.\nTôi còn phải đưa họ về.”\nLan và Tuấn vẫn chờ phía sau hàng rào.',
             {
                 fontFamily: 'monospace',
                 fontSize: '10px',
