@@ -29,14 +29,14 @@ export class DialogueScene extends Phaser.Scene {
             .setStrokeStyle(1, 0x64748b)
 
         const speaker = this.add.text(24, height - 118, '', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#c4b5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#c4b5fd',
         })
         const text = this.add.text(24, height - 96, '', {
-            fontFamily: 'monospace', fontSize: '11px', color: '#e5e7eb',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '11px', color: '#e5e7eb',
             wordWrap: { width: width - 48 }, lineSpacing: 4,
         })
         const page = this.add.text(24, height - 25, '', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#9ca3af',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#9ca3af',
         })
 
         const render = (): void => {
@@ -72,7 +72,7 @@ export class DialogueScene extends Phaser.Scene {
         }
 
         this.add.text(width - 24, height - 25, '[ Bỏ qua — Esc ]', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#86efac',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#86efac',
         })
             .setOrigin(1, 0)
             .setInteractive({ useHandCursor: true })

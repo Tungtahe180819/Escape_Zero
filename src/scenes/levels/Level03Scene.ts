@@ -102,7 +102,7 @@ export class Level03Scene extends Phaser.Scene {
         }, yardDetection)
         const dogAI = new YardDogAI(level03X(960), level03X(544) + 16, level03X(1152) - 16)
         const dogLabel = this.add.text(0, 0, '', {
-            fontFamily: 'monospace', fontSize: '7px', color: '#d9c39b', stroke: '#0c141b', strokeThickness: 3,
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '8px', color: '#d9c39b', stroke: '#0c141b', strokeThickness: 3,
         }).setOrigin(0.5, 1).setDepth(5)
         // A dog silhouette uses native shapes, pending final animal artwork.
         const dog = this.add.container(level03X(960), 288, [
@@ -134,7 +134,7 @@ export class Level03Scene extends Phaser.Scene {
         let levelCompleted = false
 
         this.add.text(12, 12, 'LEVEL 03', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#e5e7eb',
             stroke: '#080d14',
@@ -142,8 +142,8 @@ export class Level03Scene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
-            fontFamily: 'monospace',
-            fontSize: '8px',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+            fontSize: '9px',
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
@@ -152,7 +152,7 @@ export class Level03Scene extends Phaser.Scene {
         const objective = this.add.text(
             12, 46, 'Objective: Cross the yard and reach safety.',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '9px',
                 color: '#86efac',
                 stroke: '#080d14',
@@ -162,7 +162,7 @@ export class Level03Scene extends Phaser.Scene {
         ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const status = this.add.text(332, 46, 'Checkpoint: START', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#86efac',
             stroke: '#080d14',
@@ -170,7 +170,7 @@ export class Level03Scene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const feedback = this.add.text(12, 80, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#fca5a5',
             stroke: '#080d14',
@@ -202,7 +202,7 @@ export class Level03Scene extends Phaser.Scene {
         const fenceEffects = new FenceExitEffects(this, chaseStart.left - 20, finishBounds)
         let wasFenceOff = false
         const exitDirection = this.add.text(12, 116, '', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#a5e0b5',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#a5e0b5',
             stroke: '#080d14', strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
@@ -226,7 +226,7 @@ export class Level03Scene extends Phaser.Scene {
         })
 
         const chaseStatus = this.add.text(332, 62, 'Pursuit: READY', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#fef08a',
             stroke: '#080d14',
@@ -290,8 +290,8 @@ export class Level03Scene extends Phaser.Scene {
 
             const marker = this.add.rectangle(x, 285, 12, 4, 0x738482)
             this.add.text(x, 299, 'ĐIỂM LƯU', {
-                fontFamily: 'monospace',
-                fontSize: '8px',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+                fontSize: '9px',
                 color: '#e5e7eb',
             }).setOrigin(0.5)
 
@@ -364,7 +364,7 @@ export class Level03Scene extends Phaser.Scene {
         }
 
         this.add.text(this.scale.width - 12, 12, '[ PAUSE ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#86efac',
             backgroundColor: '#111827',
@@ -376,7 +376,7 @@ export class Level03Scene extends Phaser.Scene {
             .on('pointerdown', returnToMenu)
 
         this.add.text(12, this.scale.height - 10, '[ RESTART CHECKPOINT ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fca5a5',
             backgroundColor: '#111827',

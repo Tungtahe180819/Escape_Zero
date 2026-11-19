@@ -33,7 +33,7 @@ export class PauseScene extends Phaser.Scene {
         ).setInteractive()
 
         this.add.text(width / 2, 45, 'PAUSED', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '22px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
@@ -44,7 +44,7 @@ export class PauseScene extends Phaser.Scene {
             action: () => void,
         ): Phaser.GameObjects.Text => {
             return this.add.text(width / 2, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '14px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',
@@ -125,7 +125,7 @@ export class PauseScene extends Phaser.Scene {
             250,
             'Restart Level resets the current checkpoint.',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '9px',
                 color: '#9ca3af',
             },

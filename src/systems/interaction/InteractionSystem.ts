@@ -13,7 +13,7 @@ export class InteractionSystem {
             scene.scale.height - 10,
             '',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '10px',
                 color: '#fef08a',
                 backgroundColor: '#111827',

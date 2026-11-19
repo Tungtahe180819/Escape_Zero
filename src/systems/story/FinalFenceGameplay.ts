@@ -37,13 +37,13 @@ export class FinalFenceGameplay {
         for (const point of this.points) {
             drawFenceClue(scene, point.x, point.id)
             this.labels.set(point.id, scene.add.text(point.x, point.id === 'pole' ? 190 : 224, point.name, {
-                fontFamily: 'monospace', fontSize: '9px', color: '#eee4c4',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#eee4c4',
                 stroke: '#0c141b', strokeThickness: 3,
             }).setOrigin(0.5).setDepth(4).setVisible(false))
         }
         createStoryNPC(scene, 'porter', 240, 288).setDepth(2)
         this.prompt = scene.add.text(240, 224, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#fef08a',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#fef08a',
             stroke: '#080d14', strokeThickness: 2, wordWrap: { width: 450 }, align: 'center',
         }).setOrigin(0.5).setScrollFactor(0).setDepth(20)
         const journal = (event: KeyboardEvent): void => {

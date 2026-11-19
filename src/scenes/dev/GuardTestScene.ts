@@ -19,7 +19,7 @@ export class GuardTestScene extends Phaser.Scene {
         }
 
         this.add.text(240, 25, 'GUARD AI TEST', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '18px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
@@ -27,13 +27,13 @@ export class GuardTestScene extends Phaser.Scene {
         const guard = this.add.rectangle(240, 80, 20, 32, colors.PATROL)
 
         const stateText = this.add.text(240, 115, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '14px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
 
         this.add.text(240, 143, `Suspicion: ${GUARD_TIMING.suspicionMs / 1000}s | Search: ${GUARD_TIMING.searchMs / 1000}s`, {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#9ca3af',
         }).setOrigin(0.5)
@@ -45,7 +45,7 @@ export class GuardTestScene extends Phaser.Scene {
             action: () => void,
         ): void => {
             this.add.text(x, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '12px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',

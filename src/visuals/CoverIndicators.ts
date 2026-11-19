@@ -25,7 +25,7 @@ export function createCoverLabels(
     labelOffset = 26,
 ): (state: HidingState, alerted: boolean) => void {
     const labels = zones.map((zone, index) => scene.add.text(zone.centerX, zone.y - labelOffset, names[index], {
-        fontFamily: 'monospace', fontSize: '8px', color: '#a9c3c8',
+        fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#a9c3c8',
         align: 'center', stroke: '#0a141b', strokeThickness: 3,
     }).setOrigin(0.5).setDepth(4))
 

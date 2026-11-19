@@ -22,15 +22,15 @@ export class FenceChoiceScene extends Phaser.Scene {
         }
         this.add.rectangle(240, 135, 480, 270, 0x080d14, 0.96).setInteractive()
         this.add.text(20, 24, data.title, {
-            fontFamily: 'monospace', fontSize: '12px', color: '#e5e7eb', wordWrap: { width: 440 },
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#e5e7eb', wordWrap: { width: 440 },
         })
         data.options.forEach((option, i) => {
             this.add.text(24, 94 + i * 40, `${i + 1}. ${option}`, {
-                fontFamily: 'monospace', fontSize: '11px', color: '#86efac', wordWrap: { width: 430 },
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '11px', color: '#86efac', wordWrap: { width: 430 },
             }).setInteractive({ useHandCursor: true }).on('pointerdown', () => close(i))
         })
         this.add.text(24, 244, '1 / 2 / 3: Chọn | Esc: Quay lại', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#94a3b8',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#94a3b8',
         })
         const keydown = (event: KeyboardEvent): void => {
             if (event.repeat) return

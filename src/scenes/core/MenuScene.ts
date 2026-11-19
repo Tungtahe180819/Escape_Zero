@@ -13,7 +13,7 @@ export class MenuScene extends Phaser.Scene {
         let transitioning = false
 
         this.add.text(centerX, 55, 'ESCAPE ZERO', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '24px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
@@ -24,7 +24,7 @@ export class MenuScene extends Phaser.Scene {
             action: () => void,
         ): Phaser.GameObjects.Text => {
             return this.add.text(centerX, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '14px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',
@@ -75,7 +75,7 @@ export class MenuScene extends Phaser.Scene {
             155,
             'Click or press Enter',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '11px',
                 color: '#9ca3af',
             },
@@ -87,7 +87,7 @@ export class MenuScene extends Phaser.Scene {
             110,
             'Restart from Level 01?\nSaved progress will be reset.',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '12px',
                 color: '#fca5a5',
                 align: 'center',

@@ -17,19 +17,19 @@ export class GreyboxScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, worldWidth, height)
 
         this.add.text(12, 12, 'ESCAPE ZERO - TEST LEVEL', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#e5e7eb',
         }).setScrollFactor(0).setDepth(10)
 
         this.add.text(12, 34, 'Move: A/D or Left/Right | Jump: Space', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#9ca3af',
         }).setScrollFactor(0).setDepth(10)
 
         const menuButton = this.add.text(width - 12, 12, '[ MENU ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#86efac',
             backgroundColor: '#1f2937',
@@ -41,7 +41,7 @@ export class GreyboxScene extends Phaser.Scene {
             .setInteractive({ useHandCursor: true })
 
         this.add.text(width / 2, 65, 'Press Esc to return to menu', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#9ca3af',
         }).setOrigin(0.5).setScrollFactor(0).setDepth(10)
@@ -49,7 +49,7 @@ export class GreyboxScene extends Phaser.Scene {
         // World markers make camera movement visible.
         for (const x of [24, 480, 960, worldWidth - 24]) {
             this.add.text(x, 160, `${x}`, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '12px',
                 color: '#94a3b8',
             }).setOrigin(0.5)
@@ -104,13 +104,13 @@ export class GreyboxScene extends Phaser.Scene {
         }
 
         this.add.text(600, 205, 'DANGER', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fca5a5',
         }).setOrigin(0.5)
 
         const fpsText = this.add.text(12, 50, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#86efac',
         }).setScrollFactor(0).setDepth(10)

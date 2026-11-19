@@ -18,13 +18,13 @@ export class StoryChoiceScene extends Phaser.Scene {
         const readyAt = this.time.now + 180
         this.add.rectangle(240, 135, 480, 270, 0x0b1220, 0.98).setInteractive()
         this.add.text(20, 18, 'NGƯỜI GHI SỔ · ĐÂU LÀ MÂU THUẪN?', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#e5e7eb', wordWrap: { width: 440 },
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#e5e7eb', wordWrap: { width: 440 },
         })
         this.add.text(20, 58, 'Đối chiếu lời bà với hai tài liệu và lời Tuấn.\nEsc để tìm thêm thông tin; J để xem nhật ký.', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#94a3b8',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#94a3b8',
         })
         const feedback = this.add.text(20, 218, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#fca5a5', wordWrap: { width: 440 },
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#fca5a5', wordWrap: { width: 440 },
         })
         const close = (): void => {
             if (closing) return
@@ -46,11 +46,11 @@ export class StoryChoiceScene extends Phaser.Scene {
         }
         options.forEach((option, index) => {
             this.add.text(24, 105 + index * 34, option.text, {
-                fontFamily: 'monospace', fontSize: '11px', color: '#86efac',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '11px', color: '#86efac',
                 backgroundColor: '#263444', padding: { x: 8, y: 7 },
             }).setInteractive({ useHandCursor: true }).on('pointerdown', () => select(index))
         })
-        this.add.text(385, 252, '[ Đóng · Esc ]', { fontFamily: 'monospace', fontSize: '10px', color: '#93c5fd' })
+        this.add.text(385, 252, '[ Đóng · Esc ]', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#93c5fd' })
             .setOrigin(0.5).setInteractive({ useHandCursor: true }).on('pointerdown', close)
         const keydown = (event: KeyboardEvent): void => {
             if (event.repeat) return

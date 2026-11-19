@@ -13,13 +13,13 @@ export class DemoCompleteScene extends Phaser.Scene {
         const centerX = this.scale.width / 2
 
         this.add.text(centerX, 35, 'ESCAPE ZERO — LỜI HỨA CÒN LẠI', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '16px',
             color: '#86efac',
         }).setOrigin(0.5)
 
         this.add.text(centerX, 70, 'CỬA 09 — CÒN TIẾP', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
@@ -29,7 +29,7 @@ export class DemoCompleteScene extends Phaser.Scene {
             100,
             '“Ra được ngoài chưa phải là thoát.\nTôi còn phải đưa họ về.”\nLan và Tuấn vẫn chờ phía sau hàng rào.',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '10px',
                 color: '#9ca3af',
                 align: 'center',
@@ -42,7 +42,7 @@ export class DemoCompleteScene extends Phaser.Scene {
             action: () => void,
         ): void => {
             this.add.text(centerX, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '12px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',

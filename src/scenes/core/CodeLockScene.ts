@@ -18,13 +18,13 @@ export class CodeLockScene extends Phaser.Scene {
         let closing = false
         const readyAt = this.time.now + 180
         this.add.rectangle(240, 135, 480, 270, 0x080d14, 0.98).setInteractive()
-        this.add.text(16, 12, 'KHÓA CỔNG · KHU GIÁM SÁT', { fontFamily: 'monospace', fontSize: '13px', color: '#e5e7eb' })
+        this.add.text(16, 12, 'KHÓA CỔNG · KHU GIÁM SÁT', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '13px', color: '#e5e7eb' })
         this.add.text(16, 40, data.notes.join('\n\n'), {
-            fontFamily: 'monospace', fontSize: '10px', color: '#cbd5e1', wordWrap: { width: 250 }, lineSpacing: 3,
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#cbd5e1', wordWrap: { width: 250 }, lineSpacing: 3,
         })
-        const display = this.add.text(370, 43, '_ _ _', { fontFamily: 'monospace', fontSize: '22px', color: '#86efac' }).setOrigin(0.5)
+        const display = this.add.text(370, 43, '_ _ _', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '22px', color: '#86efac' }).setOrigin(0.5)
         const feedback = this.add.text(16, 212, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#fca5a5', wordWrap: { width: 448 },
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#fca5a5', wordWrap: { width: 448 },
         })
         const render = (): void => { display.setText(code.padEnd(3, '_').split('').join(' ')) }
         const close = (): void => {
@@ -49,7 +49,7 @@ export class CodeLockScene extends Phaser.Scene {
         }
         const button = (x: number, y: number, label: string, action: () => void): void => {
             this.add.text(x, y, label, {
-                fontFamily: 'monospace', fontSize: '13px', color: '#86efac',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '13px', color: '#86efac',
                 backgroundColor: '#263444', padding: { x: 9, y: 5 },
             }).setOrigin(0.5).setInteractive({ useHandCursor: true }).on('pointerdown', action)
         }
@@ -61,7 +61,7 @@ export class CodeLockScene extends Phaser.Scene {
         button(410, 178, 'OK', submit)
         button(398, 252, 'Đóng · Esc', close)
         this.add.text(16, 250, '0–9: Nhập · Backspace: Xóa · Enter: Thử mã', {
-            fontFamily: 'monospace', fontSize: '8px', color: '#94a3b8',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#94a3b8',
         })
         const keydown = (event: KeyboardEvent): void => {
             if (event.repeat || closing) return

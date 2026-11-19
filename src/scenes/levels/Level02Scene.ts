@@ -150,8 +150,8 @@ export class Level02Scene extends Phaser.Scene {
             ).setStrokeStyle(1, object.name.startsWith('hide-') ? 0x4b616a : 0x22c55e)
 
             this.add.text(bounds.x, bounds.y - 12, object.name.startsWith('hide-') ? 'NÚP' : object.name === 'exit' ? 'KỸ THUẬT · CẤM VÀO' : 'ĐIỂM LƯU', {
-                fontFamily: 'monospace',
-                fontSize: '8px',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+                fontSize: '9px',
                 color: '#e5e7eb',
             })
         }
@@ -173,7 +173,7 @@ export class Level02Scene extends Phaser.Scene {
         const objective = this.add.text(
             12, 46, '',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '9px',
                 color: '#86efac',
                 stroke: '#080d14',
@@ -220,7 +220,7 @@ export class Level02Scene extends Phaser.Scene {
         this.cameras.main.startFollow(player, false)
 
         this.add.text(12, 12, 'LEVEL 02 · CA TRỰC', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#e5e7eb',
             stroke: '#080d14',
@@ -228,7 +228,7 @@ export class Level02Scene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const status = this.add.text(332, 62, 'NGOÀI CHỖ NÚP', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#93c5fd',
             stroke: '#080d14',
@@ -236,7 +236,7 @@ export class Level02Scene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const cameraStatus = this.add.text(332, 78, 'Camera: 0%', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#93c5fd',
             stroke: '#080d14',
@@ -285,7 +285,7 @@ export class Level02Scene extends Phaser.Scene {
         this.physics.add.existing(checkpointZone, true)
 
         const guardStatus = this.add.text(332, 110, 'Guard: PATROL', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#fef08a',
             stroke: '#080d14',
@@ -308,7 +308,7 @@ export class Level02Scene extends Phaser.Scene {
         const checkpointStatus = this.add.text(
             332, 46, 'Checkpoint: START',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '9px',
                 color: '#86efac',
                 stroke: '#080d14',
@@ -317,7 +317,7 @@ export class Level02Scene extends Phaser.Scene {
         ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const feedback = this.add.text(240, 212, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
             color: '#fca5a5',
             stroke: '#080d14',
@@ -348,7 +348,7 @@ export class Level02Scene extends Phaser.Scene {
         const workCheckpoint = getPoint('workCheckpoint')
         const workZone = this.add.zone(workCheckpoint.x, workCheckpoint.y, 48, 32)
         this.physics.add.existing(workZone, true)
-        this.add.text(workCheckpoint.x, workCheckpoint.y - 30, 'ĐIỂM LƯU · KHU LÀM VIỆC', { fontFamily: 'monospace', fontSize: '8px', color: '#86efac' }).setOrigin(0.5)
+        this.add.text(workCheckpoint.x, workCheckpoint.y - 30, 'ĐIỂM LƯU · KHU LÀM VIỆC', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#86efac' }).setOrigin(0.5)
         this.physics.add.overlap(player, workZone, () => {
             if (checkpoints.activate('cp-work', workCheckpoint)) {
                 checkpointStatus.setText('Checkpoint: cp-work'); playSfx(this, 'checkpoint')
@@ -388,7 +388,7 @@ export class Level02Scene extends Phaser.Scene {
         }
 
         this.add.text(12, this.scale.height - 10, '[ RESTART CHECKPOINT ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fca5a5',
             backgroundColor: '#111827',
@@ -416,7 +416,7 @@ export class Level02Scene extends Phaser.Scene {
         }
 
         this.add.text(this.scale.width - 12, 12, '[ PAUSE ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#86efac',
             backgroundColor: '#111827',

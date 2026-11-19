@@ -26,7 +26,7 @@ export class LevelCompleteScene extends Phaser.Scene {
             40,
             isLevel02 ? 'CÁI GIÁ CỦA SỰ THẬT' : 'MỘT CÁNH CỬA ĐÃ MỞ',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '18px',
                 color: '#86efac',
             },
@@ -39,7 +39,7 @@ export class LevelCompleteScene extends Phaser.Scene {
                 ? 'USB đã rời phòng máy. Lan và Tuấn còn ở lại.\nMinh phải qua hàng rào để mang chứng cứ tới người có thể giúp.\nLần này, đường thoát còn dành cho những người phía sau.'
                 : 'Minh: “Còn hai người?”\nTuấn: “Em canh cửa. Anh xem đường trước.”\nLan: “Mở được cửa này đã. Chúng ta mới có đường đi tiếp.”',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '10px',
                 color: '#e5e7eb',
                 align: 'center',
@@ -54,7 +54,7 @@ export class LevelCompleteScene extends Phaser.Scene {
             action: () => void,
         ): void => {
             this.add.text(centerX, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '14px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',

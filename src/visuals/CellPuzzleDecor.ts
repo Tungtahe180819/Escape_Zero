@@ -10,7 +10,7 @@ export function createCellPuzzleDecor(
     createStoryNPC(scene, 'tuan', tuan.x, tuan.y + 16)
     const label = (x: number, y: number, text: string): void => {
         scene.add.text(x, y, text, {
-            fontFamily: 'monospace', fontSize: '8px', color: '#c4b5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#c4b5fd',
             stroke: '#080d14', strokeThickness: 2,
         }).setOrigin(0.5).setDepth(1)
     }

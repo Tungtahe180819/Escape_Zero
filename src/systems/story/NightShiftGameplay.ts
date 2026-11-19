@@ -24,7 +24,7 @@ export function createNightShiftGameplay(
     }
     const title = (id: string, text: string): void => {
         const point = getPoint(id)
-        scene.add.text(point.x, point.y - 40, text, { fontFamily: 'monospace', fontSize: '8px', color: '#c4b5fd', stroke: '#080d14', strokeThickness: 2 }).setOrigin(0.5).setDepth(1)
+        scene.add.text(point.x, point.y - 40, text, { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#c4b5fd', stroke: '#080d14', strokeThickness: 2 }).setOrigin(0.5).setDepth(1)
     }
     for (const npc of [
         { id: 'food', name: 'Người cấp suất ăn' },
@@ -114,7 +114,7 @@ export function createNightShiftGameplay(
     }
     const openJournal = (event?: KeyboardEvent): void => { if (!event?.repeat) speak(mission.journal()) }
     scene.input.keyboard?.on('keydown-J', openJournal)
-    scene.add.text(468, 260, '[ NHẬT KÝ · J ]', { fontFamily: 'monospace', fontSize: '10px', color: '#93c5fd', stroke: '#080d14', strokeThickness: 2 }).setOrigin(1, 1).setScrollFactor(0).setDepth(20).setInteractive({ useHandCursor: true }).on('pointerdown', () => openJournal())
+    scene.add.text(468, 260, '[ NHẬT KÝ · J ]', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#93c5fd', stroke: '#080d14', strokeThickness: 2 }).setOrigin(1, 1).setScrollFactor(0).setDepth(20).setInteractive({ useHandCursor: true }).on('pointerdown', () => openJournal())
     return {
         targets, overlayOpen,
         finish: () => speak(NIGHT_ENDING, endingDone),

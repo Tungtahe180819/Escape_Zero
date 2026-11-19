@@ -8,11 +8,11 @@ export function labelOutdoorAreas(scene: Phaser.Scene): void {
         [1456, 'TRẠM ĐIỆN', 'Tủ nhánh • Cầu dao'],
     ] as const) {
         scene.add.text(level03X(x), 178, title, {
-            fontFamily: 'monospace', fontSize: '10px', color: '#9da995',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#9da995',
             stroke: '#101b23', strokeThickness: 3,
         }).setOrigin(0.5).setDepth(0)
         scene.add.text(level03X(x), 193, subtitle, {
-            fontFamily: 'monospace', fontSize: '7px', color: '#76877e',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '8px', color: '#76877e',
             stroke: '#101b23', strokeThickness: 2,
         }).setOrigin(0.5).setDepth(0)
     }
@@ -40,7 +40,7 @@ export function drawFenceClue(scene: Phaser.Scene, x: number, id: string): void 
         rect(-4, 244, 8, 3, 0xe0ded0)
         rect(4, 251, 9, 3, 0xa9684e)
         g.fillStyle(0xa9684e).fillTriangle(x + 13, 248, x + 19, 252, x + 13, 256)
-        scene.add.text(x - 2, 220, 'B', { fontFamily: 'monospace', fontSize: '9px', color: '#ece7cf' }).setOrigin(0.5)
+        scene.add.text(x - 2, 220, 'B', { fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#ece7cf' }).setOrigin(0.5)
     } else if (id === 'bridgeLever') {
         rect(-8, 279, 16, 9, 0x4c5652)
         rect(-3, 264, 6, 17, 0x75827a)

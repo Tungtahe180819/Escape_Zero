@@ -31,7 +31,7 @@ export class SettingsScene extends Phaser.Scene {
         ).setInteractive()
 
         this.add.text(centerX, 35, 'SETTINGS', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '22px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
@@ -43,7 +43,7 @@ export class SettingsScene extends Phaser.Scene {
             action: () => void,
         ): Phaser.GameObjects.Text => {
             return this.add.text(x, y, label, {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '14px',
                 color: '#86efac',
                 backgroundColor: '#1f2937',
@@ -55,13 +55,13 @@ export class SettingsScene extends Phaser.Scene {
         }
 
         const volumeText = this.add.text(centerX, 90, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '14px',
             color: '#e5e7eb',
         }).setOrigin(0.5)
 
         const statusText = this.add.text(centerX, 185, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#9ca3af',
         }).setOrigin(0.5)
@@ -141,7 +141,7 @@ export class SettingsScene extends Phaser.Scene {
             255,
             'Left/Right: Volume | M: Mute | FPS limit: 300',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '9px',
                 color: '#9ca3af',
             },

@@ -28,7 +28,7 @@ export function createCellStairs(
             visual.lineBetween(x + 6, y, x + 6, y - 8)
         }
         scene.add.text(point.x, point.y - 66, link.label, {
-            fontFamily: 'monospace', fontSize: '8px', color: '#93c5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#93c5fd',
             stroke: '#080d14', strokeThickness: 2,
         }).setOrigin(0.5).setDepth(1)
         return {

@@ -20,11 +20,11 @@ export class FenceExitEffects {
         this.finish = finish
         this.art = scene.add.graphics().setDepth(1)
         this.gateLabel = scene.add.text(gateX, 206, '', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#e6c583',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#e6c583',
             stroke: '#0b141b', strokeThickness: 3,
         }).setOrigin(0.5).setDepth(4)
         this.exitLabel = scene.add.text(finish.centerX, finish.top - 25, 'KHE RÀO THOÁT HIỂM', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#cfb77f',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#cfb77f',
             stroke: '#0b141b', strokeThickness: 3,
         }).setOrigin(1, 0.5).setX(finish.right + 8).setDepth(4)
         this.update(0, false, false)

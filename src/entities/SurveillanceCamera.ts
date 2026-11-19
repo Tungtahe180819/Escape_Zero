@@ -49,8 +49,8 @@ export class SurveillanceCamera extends Phaser.GameObjects.Rectangle {
 
         this.cone = scene.add.graphics().setDepth(1)
         this.label = scene.add.text(config.x, config.y - 12, '', {
-            fontFamily: 'monospace',
-            fontSize: '8px',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+            fontSize: '9px',
             color: '#e5e7eb',
             backgroundColor: '#111827',
         }).setOrigin(0.5, 1).setDepth(3)

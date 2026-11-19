@@ -58,8 +58,8 @@ export class Guard extends Phaser.Physics.Arcade.Sprite {
 
         this.cone = scene.add.graphics().setDepth(1)
         this.label = scene.add.text(0, 0, '', {
-            fontFamily: 'monospace',
-            fontSize: '8px',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+            fontSize: '9px',
             color: '#e5e7eb',
             backgroundColor: '#111827',
         }).setOrigin(0.5, 1).setDepth(3)

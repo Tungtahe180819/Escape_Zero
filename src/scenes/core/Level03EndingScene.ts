@@ -18,17 +18,17 @@ export class Level03EndingScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#101c22')
         this.input.keyboard?.resetKeys()
         this.add.text(240, 30, 'ĐÃ VƯỢT QUA HÀNG RÀO', {
-            fontFamily: 'monospace', fontSize: '16px', color: '#a5e0b5',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '16px', color: '#a5e0b5',
         }).setOrigin(0.5)
         const speaker = this.add.text(28, 70, '', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#c4b5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#c4b5fd',
         })
         const body = this.add.text(28, 98, '', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#e5e7eb',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#e5e7eb',
             wordWrap: { width: 424 }, lineSpacing: 5,
         })
         const hint = this.add.text(28, 212, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#9ca3af',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#9ca3af',
         })
         const render = (): void => {
             speaker.setText(pages[page].speaker)
@@ -47,10 +47,10 @@ export class Level03EndingScene extends Phaser.Scene {
             else { page++; render() }
         }
         this.add.text(28, 240, '[ BỎ QUA ]', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#9ca3af',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#9ca3af',
         }).setInteractive({ useHandCursor: true }).on('pointerdown', finish)
         this.add.text(452, 240, '[ TIẾP → ]', {
-            fontFamily: 'monospace', fontSize: '12px', color: '#86efac',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#86efac',
         }).setOrigin(1, 0).setInteractive({ useHandCursor: true }).on('pointerdown', advance)
         const keydown = (event: KeyboardEvent): void => {
             if (event.repeat) return

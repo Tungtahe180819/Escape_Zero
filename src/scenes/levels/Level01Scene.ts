@@ -80,7 +80,7 @@ export class Level01Scene extends Phaser.Scene {
         }
         for (const [index, name] of ['TẦNG 3 · CHỐT GÁC', 'TẦNG 2 · KHU TRỰC', 'TẦNG 1 · BUỒNG GIAM'].entries()) {
             this.add.text(720, 160 + index * 272, name, {
-                fontFamily: 'monospace', fontSize: '12px', color: '#94a3b8',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '12px', color: '#94a3b8',
             }).setOrigin(0.5).setDepth(-1)
         }
 
@@ -187,7 +187,7 @@ export class Level01Scene extends Phaser.Scene {
         let escapeGate: Phaser.GameObjects.Image | undefined
 
         const statusText = this.add.text(12, 50, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#86efac',
             stroke: '#080d14',
@@ -205,7 +205,7 @@ export class Level01Scene extends Phaser.Scene {
         refreshStatus()
 
         const feedbackText = this.add.text(12, 82, '', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fef08a',
             stroke: '#080d14',
@@ -439,7 +439,7 @@ export class Level01Scene extends Phaser.Scene {
             if (!event?.repeat) speak(puzzle.getJournal())
         }
         this.add.text(this.scale.width - 12, this.scale.height - 10, '[ NHẬT KÝ · J ]', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#93c5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#93c5fd',
             stroke: '#080d14', strokeThickness: 2,
         }).setOrigin(1, 1).setScrollFactor(0).setDepth(20)
             .setInteractive({ useHandCursor: true }).on('pointerdown', () => openJournal())
@@ -451,12 +451,12 @@ export class Level01Scene extends Phaser.Scene {
         this.add.image((storyDoor.x + guardDoor.x) / 2, storyDoor.y - 12, 'cell-door-closed')
             .setDisplaySize(16, 48).setDepth(1)
         this.add.text(808, 438, 'CỬA · NHẤN E', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#93c5fd',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#93c5fd',
             stroke: '#080d14', strokeThickness: 2,
         }).setOrigin(0.5).setDepth(1)
         for (const room of [{ x: 1120, name: 'PHÒNG HỒ SƠ · AN TOÀN' }, { x: 400, name: 'PHÒNG GÁC · 1 LÍNH' }]) {
             this.add.text(room.x, 400, room.name, {
-                fontFamily: 'monospace', fontSize: '10px', color: '#cbd5e1',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#cbd5e1',
             }).setOrigin(0.5).setDepth(1)
         }
         const desk = this.add.graphics().setDepth(-1)
@@ -507,7 +507,7 @@ export class Level01Scene extends Phaser.Scene {
             updateLabels(state, alerted)
         }
         this.stealthText = this.add.text(12, 116, 'NGOÀI CHỖ NÚP', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#93c5fd',
             stroke: '#080d14',
@@ -515,7 +515,7 @@ export class Level01Scene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.detectionText = this.add.text(12, 132, 'Lính: PATROL', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fef08a',
             stroke: '#080d14',
@@ -543,7 +543,7 @@ export class Level01Scene extends Phaser.Scene {
         const checkpointText = this.add.text(
             12, 100, 'Checkpoint: START',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '10px',
                 color: '#86efac',
                 stroke: '#080d14',
@@ -667,7 +667,7 @@ export class Level01Scene extends Phaser.Scene {
         }
 
         this.add.text(12, this.scale.height - 10, '[ RESTART CHECKPOINT ]', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '10px',
             color: '#fca5a5',
             stroke: '#080d14',
@@ -733,7 +733,7 @@ export class Level01Scene extends Phaser.Scene {
                 checkpointMarkers.set(object.name, marker)
                 this.add.rectangle(x + width / 2, y + height - 1, width, 2, 0x22c55e, 0.5)
                 this.add.text(x + width / 2, y + height - 28, 'ĐIỂM LƯU', {
-                    fontFamily: 'monospace', fontSize: '8px', color: '#86efac',
+                    fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#86efac',
                     stroke: '#080d14', strokeThickness: 2,
                 }).setOrigin(0.5).setDepth(1)
                 continue
@@ -749,8 +749,8 @@ export class Level01Scene extends Phaser.Scene {
             ).setStrokeStyle(1, 0x22c55e)
 
             this.add.text(x, y - 14, object.name === 'exit' ? '→ KHU GIÁM SÁT' : 'ĐIỂM LƯU', {
-                fontFamily: 'monospace',
-                fontSize: '8px',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+                fontSize: '9px',
                 color: '#e5e7eb',
             })
         }
@@ -811,15 +811,15 @@ export class Level01Scene extends Phaser.Scene {
         camera.setDeadzone(4, 8)
 
         this.add.text(12, 12, 'PHÒNG GIAM 07', {
-            fontFamily: 'monospace',
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '12px',
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
-        this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {            fontFamily: 'monospace',
-            fontSize: '8px',
+        this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
+            fontSize: '9px',
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
@@ -828,7 +828,7 @@ export class Level01Scene extends Phaser.Scene {
         const menuButton = this.add.text(
             this.scale.width - 12, 12, '[ PAUSE ]',
             {
-                fontFamily: 'monospace',
+                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
                 fontSize: '12px',
                 color: '#86efac',
                 stroke: '#080d14',

@@ -25,7 +25,7 @@ export function createCellStoryDecor(
     }
 
     scene.add.text(lan.x, lan.y - 48, 'Lan', {
-        fontFamily: 'monospace', fontSize: '9px', color: '#c4b5fd',
+        fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#c4b5fd',
         stroke: '#080d14', strokeThickness: 2,
     }).setOrigin(0.5).setDepth(1)
 
@@ -42,7 +42,7 @@ export function createCellStoryDecor(
     decor.fillRect(bed.x + bed.width - 6, bed.y + 11, 3, bed.height - 11)
 
     scene.add.text(bed.x + bed.width / 2, bed.y - 10, 'Giường cũ', {
-        fontFamily: 'monospace', fontSize: '8px', color: '#cbd5e1',
+        fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#cbd5e1',
         stroke: '#080d14', strokeThickness: 2,
     }).setOrigin(0.5).setDepth(1)
 }
