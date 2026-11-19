@@ -179,7 +179,7 @@ export class Level02Scene extends Phaser.Scene {
                 strokeThickness: 2,
                 wordWrap: { width: 300 },
             },
-        ).setScrollFactor(0).setDepth(10)
+        ).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const refreshObjective = (): void => {
             objective.setText(
@@ -224,15 +224,7 @@ export class Level02Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
-
-        this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
-            fontFamily: 'monospace',
-            fontSize: '8px',
-            color: '#e5e7eb',
-            stroke: '#080d14',
-            strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const status = this.add.text(332, 62, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'monospace',
@@ -240,7 +232,7 @@ export class Level02Scene extends Phaser.Scene {
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const cameraStatus = this.add.text(332, 78, 'Camera: 0%', {
             fontFamily: 'monospace',
@@ -248,12 +240,12 @@ export class Level02Scene extends Phaser.Scene {
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.add.rectangle(332, 98, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10)
+            .setDepth(10).setVisible(false)
 
         const cameraFill = this.add.rectangle(
             332, 98, 136, 6, 0x38bdf8,
@@ -261,7 +253,7 @@ export class Level02Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1)
+            .setScale(0, 1).setVisible(false)
 
         const checkpoints = new CheckpointSystem(spawn)
 
@@ -297,12 +289,12 @@ export class Level02Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.add.rectangle(332, 130, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10)
+            .setDepth(10).setVisible(false)
 
         const guardFill = this.add.rectangle(
             332, 130, 136, 6, 0xfacc15,
@@ -310,7 +302,7 @@ export class Level02Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1)
+            .setScale(0, 1).setVisible(false)
 
         const checkpointStatus = this.add.text(
             332, 46, 'Checkpoint: START',
@@ -321,18 +313,24 @@ export class Level02Scene extends Phaser.Scene {
                 stroke: '#080d14',
                 strokeThickness: 2,
             },
-        ).setScrollFactor(0).setDepth(10)
+        ).setScrollFactor(0).setDepth(10).setVisible(false)
 
-        const feedback = this.add.text(12, 80, '', {
+        const feedback = this.add.text(240, 212, '', {
             fontFamily: 'monospace',
             fontSize: '9px',
             color: '#fca5a5',
             stroke: '#080d14',
             strokeThickness: 2,
             wordWrap: { width: 300 },
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false).setOrigin(0.5)
+        let feedbackTimer: Phaser.Time.TimerEvent | undefined
+        const showFeedback = (message: string): void => {
+            feedback.setText(message)
+            feedbackTimer?.remove()
+            feedbackTimer = this.time.delayedCall(2400, () => feedback.setText(''))
+        }
         const story = createNightShiftGameplay(this, player, mission, getPoint,
-            (text) => feedback.setText(text), refreshObjective, () => { bridgeReady = true })
+            showFeedback, refreshObjective, () => { bridgeReady = true })
         interactions = new InteractionSystem(this, story.targets)
 
         this.physics.add.overlap(player, checkpointZone, () => {
@@ -343,7 +341,7 @@ export class Level02Scene extends Phaser.Scene {
             })) {
                 checkpointStatus.setText(`Checkpoint: ${checkpoints.getLabel()}`)
                 playSfx(this, 'checkpoint')
-                feedback.setText('Checkpoint activated.')
+                showFeedback('Checkpoint activated.')
             }
         })
         const workCheckpoint = getPoint('workCheckpoint')
@@ -353,7 +351,7 @@ export class Level02Scene extends Phaser.Scene {
         this.physics.add.overlap(player, workZone, () => {
             if (checkpoints.activate('cp-work', workCheckpoint)) {
                 checkpointStatus.setText('Checkpoint: cp-work'); playSfx(this, 'checkpoint')
-                feedback.setText('Đã lưu ở khu làm việc. Manh mối và các phần chép xong được giữ khi hồi sinh.')
+                showFeedback('Đã lưu ở khu làm việc. Manh mối và các phần chép xong được giữ khi hồi sinh.')
             }
         })
 
@@ -385,7 +383,7 @@ export class Level02Scene extends Phaser.Scene {
             guardFill.setScale(0, 1)
 
             status.setText('NGOÀI CHỖ NÚP')
-            feedback.setText(message)
+            showFeedback(message)
         }
 
         this.add.text(12, this.scale.height - 10, '[ RESTART CHECKPOINT ]', {
@@ -509,7 +507,7 @@ export class Level02Scene extends Phaser.Scene {
 
             if (insideExit && !levelCompleted) {
                 if (!mission.usbReceived) {
-                    feedback.setText(`Chưa thể rời khu làm việc. ${mission.objective()}`)
+                    showFeedback(`Chưa thể rời khu làm việc. ${mission.objective()}`)
                 } else {
                     levelCompleted = true
                     player.setVelocity(0, 0)

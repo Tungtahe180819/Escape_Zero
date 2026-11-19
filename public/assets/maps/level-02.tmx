@@ -154,10 +154,10 @@
   <object id="21" name="fragment-A" x="864" y="224" width="0" height="0" rotation="0">
    <point />
   </object>
-  <object id="22" name="fragment-B" x="1696" y="224" width="0" height="0" rotation="0">
+  <object id="22" name="fragment-B" x="976" y="224" width="0" height="0" rotation="0">
    <point />
   </object>
-  <object id="23" name="fragment-C" x="1472" y="496" width="0" height="0" rotation="0">
+  <object id="23" name="fragment-C" x="1184" y="496" width="0" height="0" rotation="0">
    <point />
   </object>
   <object id="24" name="copy-A" x="1712" y="224" width="0" height="0" rotation="0">
@@ -166,10 +166,10 @@
   <object id="25" name="copy-B" x="1512" y="224" width="0" height="0" rotation="0">
    <point />
   </object>
-  <object id="26" name="copy-C" x="1328" y="224" width="0" height="0" rotation="0">
+  <object id="26" name="copy-C" x="1368" y="224" width="0" height="0" rotation="0">
    <point />
   </object>
-  <object id="27" name="copy-bonus" x="1792" y="224" width="0" height="0" rotation="0">
+  <object id="27" name="copy-bonus" x="1776" y="224" width="0" height="0" rotation="0">
    <point />
   </object>
   <object id="28" name="serviceTop" x="256" y="224" width="0" height="0" rotation="0">

@@ -4,7 +4,7 @@ import { createStoryNPC, type StoryNPCId } from './StoryNPC'
 export function createCellPuzzleDecor(
     scene: Phaser.Scene,
     getPoint: (name: string) => { x: number; y: number },
-    circuit: () => { progress: number; powered: boolean },
+    circuitProgress: () => number,
 ): () => void {
     const tuan = getPoint('tuan')
     createStoryNPC(scene, 'tuan', tuan.x, tuan.y + 16)
@@ -65,7 +65,8 @@ export function createCellPuzzleDecor(
     for (const item of switches) label(item.point.x, item.point.y - 36, item.text)
     const switchDecor = scene.add.graphics().setDepth(1)
     const refresh = (): void => {
-        const state = circuit()
+        // Progress counts accepted steps. Only the most recent one lights up.
+        const litSwitch = circuitProgress() - 1
         switchDecor.clear()
         switchDecor.lineStyle(1, 0x526674)
         switchDecor.lineBetween(switches[0].point.x, switches[0].point.y - 26,
@@ -73,7 +74,7 @@ export function createCellPuzzleDecor(
         switches.forEach((item, index) => {
             switchDecor.fillStyle(0x354754)
             switchDecor.fillRect(item.point.x - 9, item.point.y - 20, 18, 28)
-            switchDecor.fillStyle(state.powered || index < state.progress ? 0x22c55e : 0x64748b)
+            switchDecor.fillStyle(index === litSwitch ? 0x22c55e : 0x64748b)
             switchDecor.fillRect(item.point.x - 5, item.point.y - 14, 10, 12)
         })
     }

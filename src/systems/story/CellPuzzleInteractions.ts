@@ -16,8 +16,8 @@ export function createCellPuzzleInteractions(
 ): Interactable[] {
     return [
         { id: 'tuan', ...getPoint('tuan'), radius: 28, prompt: 'Hỏi Tuấn về lối ra',
-            isAvailable: () => available() && !puzzle.hasTuanClue,
-            interact: () => { if (available()) speak(TUAN_LOCK_CLUE, () => { puzzle.hearTuan(); changed() }) },
+            isAvailable: () => true,
+            interact: () => speak(TUAN_LOCK_CLUE, () => { puzzle.hearTuan(); changed() }),
         },
         { id: 'roster', ...getPoint('roster'), radius: 28, prompt: 'Đọc sổ đổi ca',
             isAvailable: () => available() && !puzzle.hasRosterClue,
@@ -51,11 +51,11 @@ export function createCellPuzzleInteractions(
             interact: () => { if (available()) speak(TRANSFER_ORDER_CLUE, () => { puzzle.inspectTransferOrder(); changed() }) },
         },
         { id: 'technician', ...getPoint('technician'), radius: 28, prompt: 'Hỏi người thợ điện',
-            isAvailable: () => available() && !puzzle.hasPowerHint,
+            isAvailable: available,
             interact: () => { if (available()) speak(TECHNICIAN_STORY, () => { puzzle.hearTechnician(); changed() }) },
         },
         { id: 'cleaner', ...getPoint('cleaner'), radius: 28, prompt: 'Hỏi người lau dọn',
-            isAvailable: () => available() && !puzzle.hasCleanerHint,
+            isAvailable: available,
             interact: () => { if (available()) speak(CLEANER_STORY, () => { puzzle.hearCleaner(); changed() }) },
         },
         ...[

@@ -21,7 +21,7 @@ import { createCellPuzzleInteractions } from '../../systems/story/CellPuzzleInte
 import { createCellPuzzleDecor } from '../../visuals/CellPuzzleDecor'
 import type { DialogueLine } from '../../systems/story/DialogueTypes'
 import { evaluateHiding, hidingLabel } from '../../systems/stealth/HidingSystem'
-import { createCoverIndicators } from '../../visuals/CoverIndicators'
+import { createCoverIndicators, createCoverLabels } from '../../visuals/CoverIndicators'
 import type { HidingState } from '../../systems/stealth/HidingSystem'
 
 export class Level01Scene extends Phaser.Scene {
@@ -191,7 +191,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#86efac',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const refreshStatus = (): void => {
             statusText.setText(
@@ -209,7 +209,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const keyX = keyObject.x
         const keyY = keyObject.y
@@ -297,9 +297,9 @@ export class Level01Scene extends Phaser.Scene {
             {
                 id: 'lan', x: lanPoint.x, y: lanPoint.y, radius: 30,
                 prompt: 'Nói chuyện với Lan',
-                isAvailable: () => !mission.hasHairpin,
+                isAvailable: () => true,
                 interact: () => {
-                    if (mission.hasHairpin || this.scene.isActive('DialogueScene')) {
+                    if (this.scene.isActive('DialogueScene')) {
                         return
                     }
 
@@ -309,6 +309,7 @@ export class Level01Scene extends Phaser.Scene {
                         returnScene: this.scene.key,
                         lines: LEVEL01_LAN_INTRO,
                         onComplete: () => {
+                            if (mission.hasHairpin) return
                             mission.receiveHairpin()
                             refreshStatus()
                             feedbackText.setText('Đã nhận kẹp tóc. Đến song cửa, nhấn E để móc chìa.')
@@ -432,7 +433,7 @@ export class Level01Scene extends Phaser.Scene {
             (message) => feedbackText.setText(message),
         ))
         refreshCircuit = createCellPuzzleDecor(this, getMapPoint,
-            () => ({ progress: puzzle.circuitProgress, powered: puzzle.powerReady }))
+            () => puzzle.circuitProgress)
         const openJournal = (event?: KeyboardEvent): void => {
             if (!event?.repeat) speak(puzzle.getJournal())
         }
@@ -493,14 +494,24 @@ export class Level01Scene extends Phaser.Scene {
                 )
             })
 
-        this.updateCover = createCoverIndicators(this, this.hideZones)
+        const updateCover = createCoverIndicators(this, this.hideZones)
+        const updateLabels = createCoverLabels(this, this.hideZones, [
+            'Tủ đầu hành lang', 'Tủ giữa khu giam', 'Tủ gần cầu thang',
+            'Tủ trái phòng gác', 'Tủ giữa phòng gác', 'Tủ phải phòng gác',
+            'Tủ đầu tầng 3', 'Tủ chốt gác trái', 'Tủ trước phòng điều khiển',
+            'Tủ sau phòng điều khiển', 'Tủ chốt gác phải', 'Tủ gần cổng ra',
+        ])
+        this.updateCover = (state, alerted) => {
+            updateCover(state, alerted)
+            updateLabels(state, alerted)
+        }
         this.stealthText = this.add.text(12, 116, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'monospace',
             fontSize: '10px',
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.detectionText = this.add.text(12, 132, 'Lính: PATROL', {
             fontFamily: 'monospace',
@@ -508,12 +519,12 @@ export class Level01Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.add.rectangle(332, 98, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10)
+            .setDepth(10).setVisible(false)
 
         this.detectionFill = this.add.rectangle(
             332, 98, 136, 6, 0xfacc15,
@@ -521,7 +532,7 @@ export class Level01Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1)
+            .setScale(0, 1).setVisible(false)
 
         const checkpoints = new CheckpointSystem({
             x: spawn.x,
@@ -537,7 +548,7 @@ export class Level01Scene extends Phaser.Scene {
                 stroke: '#080d14',
                 strokeThickness: 2,
             },
-        ).setScrollFactor(0).setDepth(10)
+        ).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const checkpointObjects = triggers.objects.filter(
             (object) => object.name.startsWith('cp-'),
@@ -711,10 +722,6 @@ export class Level01Scene extends Phaser.Scene {
                 for (let offset = 16; offset < width; offset += 16) {
                     recess.lineBetween(x + offset, y + 2, x + offset, y + height - 2)
                 }
-                this.add.text(x + width / 2, y - 12, 'NÚP', {
-                    fontFamily: 'monospace', fontSize: '8px', color: '#86efac',
-                    stroke: '#080d14', strokeThickness: 2,
-                }).setOrigin(0.5, 0)
                 continue
             }
 
@@ -808,14 +815,14 @@ export class Level01Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {            fontFamily: 'monospace',
             fontSize: '8px',
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const menuButton = this.add.text(
             this.scale.width - 12, 12, '[ PAUSE ]',

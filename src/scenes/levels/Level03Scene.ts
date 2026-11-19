@@ -1,3 +1,4 @@
+import { createCoverLabels } from '../../visuals/CoverIndicators'
 import Phaser from 'phaser'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { Player } from '../../entities/Player'
@@ -90,10 +91,9 @@ export class Level03Scene extends Phaser.Scene {
         }
         const crateArt = [592, 816, 1080].map(x => drawYardCrate(this, level03X(x)))
         const covers = [592, 816, 1080].map(x => new Phaser.Geom.Rectangle(level03X(x) - 24, 240, 48, 48))
-        const coverHint = this.add.text(0, 0, '', {
-            fontFamily: 'monospace', fontSize: '9px', color: '#cbd5e1',
-            stroke: '#0c141b', strokeThickness: 3,
-        }).setOrigin(0.5, 1).setDepth(6)
+        const updateCoverLabels = createCoverLabels(this, covers, [
+            'Kiện hàng đầu sân', 'Kiện hàng giữa sân', 'Kiện hàng cạnh lối mương',
+        ], 9)
         const coverRim = this.add.graphics().setDepth(4)
         const yardDetection = new DetectionSystem([ground, walls])
         const yardCamera = new SurveillanceCamera(this, {
@@ -138,7 +138,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
             fontFamily: 'monospace',
@@ -146,7 +146,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const objective = this.add.text(
             12, 46, 'Objective: Cross the yard and reach safety.',
@@ -158,7 +158,7 @@ export class Level03Scene extends Phaser.Scene {
                 strokeThickness: 2,
                 wordWrap: { width: 300 },
             },
-        ).setScrollFactor(0).setDepth(10)
+        ).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const status = this.add.text(332, 46, 'Checkpoint: START', {
             fontFamily: 'monospace',
@@ -166,7 +166,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#86efac',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const feedback = this.add.text(12, 80, '', {
             fontFamily: 'monospace',
@@ -175,7 +175,7 @@ export class Level03Scene extends Phaser.Scene {
             stroke: '#080d14',
             strokeThickness: 2,
             wordWrap: { width: 300 },
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         const getChaseBounds = (name: string): Phaser.Geom.Rectangle => {
             const object = triggers.objects.find((item) => item.name === name)
@@ -203,7 +203,7 @@ export class Level03Scene extends Phaser.Scene {
         const exitDirection = this.add.text(12, 116, '', {
             fontFamily: 'monospace', fontSize: '9px', color: '#a5e0b5',
             stroke: '#080d14', strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         if (finishBounds.left < chaseEnd.right) {
             throw new Error('Finish must be after the chase end')
@@ -230,7 +230,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10)
+        }).setScrollFactor(0).setDepth(10).setVisible(false)
 
         // Chase triggers remain invisible; the alarm and pursuit provide feedback.
 
@@ -424,12 +424,10 @@ export class Level03Scene extends Phaser.Scene {
             player.setAlpha(hidden ? 0.45 : 1)
             coverRim.clear()
             crateArt.forEach((art, index) => art.setAlpha(hidden && index === coverIndex ? 0.65 : 1))
-            coverHint.setVisible(coverIndex >= 0)
+            updateCoverLabels({ zoneIndex: coverIndex, hidden }, alerted)
             if (coverIndex >= 0) {
                 const cover = covers[coverIndex]
                 const color = hidden ? alerted ? 0xe1b773 : 0x86c5a1 : 0xb8c4c5
-                coverHint.setPosition(cover.centerX, 247).setColor(hidden ? alerted ? '#e1b773' : '#86c5a1' : '#b8c4c5')
-                    .setText(hidden ? alerted ? 'ĐANG NÚP — LÍNH CÒN TÌM KIẾM' : 'ĐÃ ẨN — KHUẤT TẦM NHÌN' : '[Giữ S] Núp sau kiện hàng')
                 coverRim.lineStyle(1, color, 0.8).strokeRect(cover.x, 255, cover.width, 33)
             }
             yardCamera.updateScan(delta, player.x, player.y, hidden)

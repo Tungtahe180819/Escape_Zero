@@ -61,7 +61,10 @@ export function createNightShiftGameplay(
             scene.scene.launch('DataOrderScene', { notes: DATA_PARTS.map((part) => DATA_NOTES[part]), onSubmit: (order: string) => { const error = mission.arrange(order); changed(); return error } })
             scene.scene.pause(); return
         }
-        speak([{ speaker: 'Lan', text: mission.objective() }])
+        const recap = mission.usbReceived
+            ? 'Cậu đã cầm USB. Giữ nó bên mình khi qua cửa kỹ thuật ở cuối hành lang trên.'
+            : 'Ba mảnh dữ liệu phải được xếp theo giờ từ đầu đến cuối ca. Sau khi ghép, chép từng phần tại máy trên hành lang.'
+        speak([{ speaker: 'Lan', text: recap }, { speaker: 'Lan', text: mission.objective() }])
     })
     add('tuan', 'Nói chuyện với Tuấn', () => speak([
         { speaker: 'Tuấn', text: 'Anh còn nhớ em đã canh cửa cho anh ở buồng 07 không? Ở đây em phải dùng tên người khác để nhắn tin suốt đêm. Em sợ đến lúc ra được ngoài, chẳng ai tin tên thật của em nữa.' },

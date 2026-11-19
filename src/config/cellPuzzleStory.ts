@@ -1,12 +1,12 @@
 import type { DialogueLine } from '../systems/story/DialogueTypes'
 
 export const TUAN_LOCK_CLUE: readonly DialogueLine[] = [
-    { speaker: 'Tuấn', text: 'Anh mở được cửa rồi? Em nghe lính nói cổng tầng trên còn có khóa số. Đừng chạy thẳng ra đó.' },
+    { speaker: 'Tuấn', text: 'Anh định tìm đường ra à? Em nghe lính nói cổng tầng trên còn có khóa số. Đừng chạy thẳng ra đó.' },
     { speaker: 'Tuấn', text: 'Em mới 19 tuổi. Họ hứa cho việc để trả nợ cho bố, rồi đưa em vào đây. Trên hồ sơ họ chẳng ghi tên thật nữa.' },
     { speaker: 'Minh', text: 'Em có nhớ họ nhập thế nào không?' },
     { speaker: 'Tuấn', text: 'Họ đọc: buồng trước, ca sau, tổ cuối. Chỉ lấy chữ số cuối của mỗi mục. Sổ đổi ca nằm ở phòng hồ sơ tầng 2.' },
     { speaker: 'Minh', text: 'Em biết quy tắc mở cổng, sao lại nói cho anh?' },
-    { speaker: 'Tuấn', text: 'Một mình em không tới được đó. Anh đi trước xem đường. Em sẽ canh tiếng lính, không để họ biết cửa đã mở.' },
+    { speaker: 'Tuấn', text: 'Một mình em không tới được đó. Nếu có cơ hội, anh đi trước xem đường. Em sẽ canh tiếng chân lính.' },
     { speaker: 'Minh', text: 'Vậy giúp anh nhớ tên những người ở đây. Mình không chỉ tìm đường cho một người.' },
 ]
 
