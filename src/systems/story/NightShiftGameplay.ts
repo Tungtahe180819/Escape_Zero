@@ -98,16 +98,19 @@ export function createNightShiftGameplay(
         title(id, id === 'copy-bonus' ? 'MÁY PHỤ' : `MÁY ${id.slice(-1)}`)
     }
     for (const link of [
-        { from: 'serviceTop', to: 'serviceBottom', text: 'Lối phục vụ · Xuống', card: true },
-        { from: 'serviceBottom', to: 'serviceTop', text: 'Lối phục vụ · Lên', card: true },
-        { from: 'workTop', to: 'workBottom', text: 'Xuống khu làm việc', card: false },
-        { from: 'workBottom', to: 'workTop', text: 'Lên hành lang máy', card: false },
+        { from: 'serviceTop', to: 'serviceBottom', text: 'Cửa phục vụ · Xuống' },
+        { from: 'serviceBottom', to: 'serviceTop', text: 'Cửa phục vụ · Lên' },
+        { from: 'workTop', to: 'workBottom', text: 'Cửa xuống khu làm việc' },
+        { from: 'workBottom', to: 'workTop', text: 'Cửa lên hành lang máy' },
     ]) {
         title(link.from, link.text)
         const point = getPoint(link.from)
-        scene.add.rectangle(point.x, point.y - 8, 30, 40, 0x223c47).setStrokeStyle(1, 0x7ba3ae).setDepth(-1)
+        const door = scene.add.graphics().setDepth(0)
+        door.fillStyle(0x75878b).fillRect(point.x - 15, point.y - 26, 30, 42)
+        door.fillStyle(0x263740).fillRect(point.x - 12, point.y - 23, 24, 39)
+        door.fillStyle(0x415a64).fillRect(point.x - 9, point.y - 20, 18, 14)
+        door.fillStyle(0xbac8c5).fillRect(point.x + 4, point.y - 2, 6, 2)
         add(link.from, link.text, () => {
-            if (link.card && !mission.hasServiceCard) { notify('Cần mượn thẻ từ người cấp suất ăn. Đường hành lang vẫn đi được.'); return }
             mission.interruptCopy(); const point = getPoint(link.to)
             player.body?.reset(point.x, point.y); player.setVelocity(0, 0); player.setCrouching(false); scene.input.keyboard?.resetKeys(); notify(link.text)
         })
@@ -125,8 +128,7 @@ export function createNightShiftGameplay(
             const inPosition = Math.abs(player.x - point.x) <= 22 && Math.abs(player.y - point.y) <= 24 && grounded && !player.isCrouching()
             const complete = mission.tickCopy(delta, inPosition)
             if (complete) { notify('Đã chép xong một phần. Các phần hoàn tất được giữ khi hồi sinh.'); changed() }
-            else if (mission.activeCopy) notify(`Đang sao chép ${mission.activeCopy}: ${mission.copyPercent}% · Rời máy để núp khi cần`)
-            else notify('Đã ngắt sao chép. Chỉ phần chưa hoàn tất cần làm lại.')
+            else if (!mission.activeCopy) notify('Đã ngắt sao chép. Chỉ phần chưa hoàn tất cần làm lại.')
         },
         destroy: () => scene.input.keyboard?.off('keydown-J', openJournal),
     }

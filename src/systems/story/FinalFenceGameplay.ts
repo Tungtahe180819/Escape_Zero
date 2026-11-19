@@ -5,6 +5,7 @@ import type { DialogueLine } from './DialogueTypes'
 import { drawFenceClue } from '../../visuals/FinalFenceDecor'
 import { level03X } from '../../config/level03Layout'
 import { createStoryNPC } from '../../visuals/StoryNPC'
+import { showGameplayCue } from '../audio/GameplayCue'
 
 /** Story interactions stay on the banks, before the drawbridge and final sprint. */
 export class FinalFenceGameplay {
@@ -86,6 +87,7 @@ export class FinalFenceGameplay {
         this.prompt.setText(this.scene.time.now < this.resultUntil ? this.result
             : point && !this.mission.running ? `[E] ${pointName} | J: Sổ tay` : '')
         if (!interact || !point || this.mission.running || this.mission.escaped) return
+        if (point.id !== 'porter') showGameplayCue(this.scene, 'item', point.name)
         const m = this.mission
         const text = (speaker: string, body: string): void => this.talk([{ speaker, text: body }])
         switch (point.id) {

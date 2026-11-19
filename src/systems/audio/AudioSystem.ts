@@ -4,6 +4,8 @@ const SFX = {
     jump: { file: 'jump.wav', volume: 0.5, gap: 100 },
     key: { file: 'key.wav', volume: 0.65, gap: 150 },
     interact: { file: 'interact.wav', volume: 0.65, gap: 150 },
+    item: { file: 'item.wav', volume: 0.6, gap: 150 },
+    dialogue: { file: 'dialogue.wav', volume: 0.55, gap: 150 },
     checkpoint: { file: 'checkpoint.wav', volume: 0.6, gap: 250 },
     caught: { file: 'caught.wav', volume: 0.65, gap: 600 },
     complete: { file: 'complete.wav', volume: 0.65, gap: 600 },

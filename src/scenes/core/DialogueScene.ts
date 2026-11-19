@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { playSfx } from '../../systems/audio/AudioSystem'
 import type { DialogueData } from '../../systems/story/DialogueTypes'
 
 export class DialogueScene extends Phaser.Scene {
@@ -18,6 +19,7 @@ export class DialogueScene extends Phaser.Scene {
             return
         }
 
+        playSfx(this, 'dialogue')
         let index = 0
         let closing = false
         const inputReadyAt = this.time.now + 180

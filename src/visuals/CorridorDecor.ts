@@ -4,7 +4,7 @@ import type { HidingState } from '../systems/stealth/HidingSystem'
 
 export function createCorridorHidingPlaces(scene: Phaser.Scene, zones: readonly Phaser.Geom.Rectangle[]): (state: HidingState, alerted: boolean) => void {
     const names = ['Tủ đầu hành lang', 'Tủ phòng gác', 'Tủ cạnh hồ sơ A', 'Tủ dưới camera',
-        'Tủ cạnh cầu thang', 'Tủ khu máy B', 'Tủ khu máy A', 'Tủ gần cửa kỹ thuật']
+        'Tủ đầu khu máy', 'Tủ khu máy B', 'Tủ khu máy A', 'Tủ gần cửa kỹ thuật']
     for (const zone of zones) {
         const g = scene.add.graphics().setDepth(1)
         g.fillStyle(0x16262d).fillRect(zone.x, zone.y, zone.width, zone.height)

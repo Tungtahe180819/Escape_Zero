@@ -17,17 +17,12 @@ export function createCellStairs(
     return CELL_STAIR_LINKS.map((link) => {
         const point = getPoint(link.from)
         const destination = getPoint(link.to)
-        const visual = scene.add.graphics().setDepth(-1)
-        visual.fillStyle(0x14232e)
-        visual.fillRect(point.x - 24, point.y - 52, 48, 64)
-        visual.lineStyle(2, 0x718b94)
-        for (let step = 0; step < 6; step++) {
-            const x = point.x - 20 + step * 6
-            const y = point.y + 10 - step * 8
-            visual.lineBetween(x, y, x + 6, y)
-            visual.lineBetween(x + 6, y, x + 6, y - 8)
-        }
-        scene.add.text(point.x, point.y - 66, link.label, {
+        const door = scene.add.graphics().setDepth(0)
+        door.fillStyle(0x75878b).fillRect(point.x - 15, point.y - 26, 30, 42)
+        door.fillStyle(0x263740).fillRect(point.x - 12, point.y - 23, 24, 39)
+        door.fillStyle(0x415a64).fillRect(point.x - 9, point.y - 20, 18, 14)
+        door.fillStyle(0xbac8c5).fillRect(point.x + 4, point.y - 2, 6, 2)
+        scene.add.text(point.x, point.y - 37, link.label, {
             fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '9px', color: '#93c5fd',
             stroke: '#080d14', strokeThickness: 2,
         }).setOrigin(0.5).setDepth(1)

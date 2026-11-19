@@ -7,201 +7,80 @@ export class MenuScene extends Phaser.Scene {
     }
 
     create(): void {
-        const centerX = this.scale.width / 2
         const currentLevel = saveSystem.getCurrentLevel()
-        let confirmingRestart = false
         let transitioning = false
+        const menu = document.createElement('main')
+        menu.className = 'game-main-menu'
+        menu.innerHTML = `
+            <h1>ESCAPE ZERO</h1>
+            <button type="button" data-action="play"></button>
+            <p class="game-menu-hint">Click or press Enter</p>
+            <button type="button" data-action="restart">Restart from Level 01</button>
+            <button type="button" data-action="settings">Settings</button>
+            <p class="game-menu-question" hidden>Restart from Level 01?<br>Saved progress will be reset.</p>
+            <button type="button" data-action="confirm" hidden>Yes, restart</button>
+            <button type="button" data-action="cancel" hidden>Cancel</button>
+        `
+        this.game.canvas.parentElement?.append(menu)
 
-        this.add.text(centerX, 55, 'ESCAPE ZERO', {
-            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
-            fontSize: '24px',
-            color: '#e5e7eb',
-        }).setOrigin(0.5)
+        const play = menu.querySelector<HTMLButtonElement>('[data-action="play"]')!
+        const restart = menu.querySelector<HTMLButtonElement>('[data-action="restart"]')!
+        const settings = menu.querySelector<HTMLButtonElement>('[data-action="settings"]')!
+        const confirm = menu.querySelector<HTMLButtonElement>('[data-action="confirm"]')!
+        const cancel = menu.querySelector<HTMLButtonElement>('[data-action="cancel"]')!
+        const question = menu.querySelector<HTMLElement>('.game-menu-question')!
+        const hint = menu.querySelector<HTMLElement>('.game-menu-hint')!
+        play.textContent = currentLevel ? 'Continue · Level 0' + currentLevel : 'Start'
 
-        const addButton = (
-            y: number,
-            label: string,
-            action: () => void,
-        ): Phaser.GameObjects.Text => {
-            return this.add.text(centerX, y, label, {
-                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
-                fontSize: '14px',
-                color: '#86efac',
-                backgroundColor: '#1f2937',
-                padding: { x: 12, y: 8 },
-            })
-                .setOrigin(0.5)
-                .setInteractive({ useHandCursor: true })
-                .on('pointerdown', action)
+        const showConfirmation = (visible: boolean): void => {
+            question.hidden = confirm.hidden = cancel.hidden = !visible
+            play.hidden = hint.hidden = settings.hidden = visible
+            restart.hidden = visible || currentLevel === null
         }
+        showConfirmation(false)
 
-        const openLevel = (level: 1 | 2 | 3): void => {
-            if (transitioning) {
-                return
-            }
-
+        const openLevel = (level: number): void => {
+            if (transitioning) return
             transitioning = true
-
-            const sceneKey =
-                level === 1
-                    ? 'Level01Scene'
-                    : level === 2
-                        ? 'Level02Scene'
-                        : 'Level03Scene'
-
-            this.scene.start(sceneKey)
+            this.scene.start('Level0' + level + 'Scene')
         }
 
-        const startOrContinue = (): void => {
-            if (confirmingRestart || transitioning) {
-                return
-            }
-
-            openLevel(currentLevel ?? 1)
-        }
-
-        const mainLabel = currentLevel === null
-            ? '[ START ]'
-            : `[ CONTINUE - LEVEL 0${currentLevel} ]`
-
-        const mainButton = addButton(
-            115,
-            mainLabel,
-            startOrContinue,
-        )
-
-        const hint = this.add.text(
-            centerX,
-            155,
-            'Click or press Enter',
-            {
-                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
-                fontSize: '11px',
-                color: '#9ca3af',
-            },
-        ).setOrigin(0.5)
-
-        // Confirmation controls are hidden until Restart is clicked.
-        const question = this.add.text(
-            centerX,
-            110,
-            'Restart from Level 01?\nSaved progress will be reset.',
-            {
-                fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
-                fontSize: '12px',
-                color: '#fca5a5',
-                align: 'center',
-            },
-        ).setOrigin(0.5).setVisible(false)
-
-        const cancelRestart = (): void => {
-            if (!confirmingRestart || transitioning) {
-                return
-            }
-
-            confirmingRestart = false
-            question.setVisible(false)
-            confirmButton.setVisible(false).disableInteractive()
-            cancelButton.setVisible(false).disableInteractive()
-
-            mainButton
-                .setVisible(true)
-                .setInteractive({ useHandCursor: true })
-
-            restartButton
-                .setVisible(true)
-                .setInteractive({ useHandCursor: true })
-
-            hint.setVisible(true)
-        }
-
-        const confirmRestart = (): void => {
-            if (!confirmingRestart || transitioning) {
-                return
-            }
-
+        play.onclick = () => openLevel(currentLevel ?? 1)
+        restart.onclick = () => { showConfirmation(true); cancel.focus() }
+        cancel.onclick = () => { showConfirmation(false); restart.focus() }
+        confirm.onclick = () => {
+            if (transitioning) return
             saveSystem.reset()
             openLevel(1)
         }
-
-        const confirmButton = addButton(
-            160,
-            '[ YES - RESTART ]',
-            confirmRestart,
-        ).setVisible(false).disableInteractive()
-
-        const cancelButton = addButton(
-            205,
-            '[ CANCEL - ESC ]',
-            cancelRestart,
-        ).setVisible(false).disableInteractive()
-
-        const requestRestart = (): void => {
-            if (confirmingRestart || transitioning) {
-                return
-            }
-
-            confirmingRestart = true
-            mainButton.setVisible(false).disableInteractive()
-            restartButton.setVisible(false).disableInteractive()
-            hint.setVisible(false)
-
-            question.setVisible(true)
-
-            confirmButton
-                .setVisible(true)
-                .setInteractive({ useHandCursor: true })
-
-            cancelButton
-                .setVisible(true)
-                .setInteractive({ useHandCursor: true })
+        settings.onclick = () => {
+            if (transitioning || this.scene.isActive('SettingsScene')) return
+            this.input.keyboard?.resetKeys()
+            this.scene.launch('SettingsScene', { returnScene: this.scene.key })
+            this.scene.pause()
         }
 
-        const restartButton = addButton(
-            205,
-            '[ RESTART FROM LEVEL 01 ]',
-            requestRestart,
-        )
-
-        // No saved playthrough means there is nothing to restart.
-        if (currentLevel === null) {
-            restartButton.setVisible(false).disableInteractive()
+        const onKey = (event: KeyboardEvent): void => {
+            if (event.repeat) return
+            if (event.key === 'Escape' && !question.hidden) cancel.click()
+            if (event.key === 'Enter' && question.hidden && !menu.contains(document.activeElement)) play.click()
         }
-
-        this.input.keyboard?.on(
-            'keydown-ENTER',
-            startOrContinue,
-            addButton(250, '[ SETTINGS ]', () => {
-                if (
-                    confirmingRestart ||
-                    transitioning ||
-                    this.scene.isActive('SettingsScene')
-                ) {
-                    return
-                }
-
-                this.input.keyboard?.resetKeys()
-
-                this.scene.launch('SettingsScene', {
-                    returnScene: this.scene.key,
-                })
-                this.scene.pause()
-            })
-        )
-        this.input.keyboard?.on(
-            'keydown-ESC',
-            cancelRestart,
-        )
-
+        const onPause = (): void => {
+            menu.hidden = true
+            window.removeEventListener('keydown', onKey)
+        }
+        const onResume = (): void => {
+            menu.hidden = false
+            window.addEventListener('keydown', onKey)
+        }
+        onResume()
+        this.events.on(Phaser.Scenes.Events.PAUSE, onPause)
+        this.events.on(Phaser.Scenes.Events.RESUME, onResume)
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            this.input.keyboard?.off(
-                'keydown-ENTER',
-                startOrContinue,
-            )
-            this.input.keyboard?.off(
-                'keydown-ESC',
-                cancelRestart,
-            )
+            onPause()
+            this.events.off(Phaser.Scenes.Events.PAUSE, onPause)
+            this.events.off(Phaser.Scenes.Events.RESUME, onResume)
+            menu.remove()
         })
     }
 }

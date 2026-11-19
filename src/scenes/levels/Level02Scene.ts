@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { showGameplayCue, updatePursuitCue } from '../../systems/audio/GameplayCue'
 import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { LEVEL02_STEALTH } from '../../config/stealthConfig'
@@ -225,7 +226,7 @@ export class Level02Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
+        }).setScrollFactor(0).setDepth(10)
 
         const status = this.add.text(332, 62, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
@@ -325,6 +326,26 @@ export class Level02Scene extends Phaser.Scene {
             wordWrap: { width: 300 },
         }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible()).setOrigin(0.5)
         let feedbackTimer: Phaser.Time.TimerEvent | undefined
+        const copyStatus = this.add.text(this.scale.width / 2, 196, '', {
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif',
+            resolution: 2,
+            fontSize: '12px',
+            color: '#e0f2fe',
+            backgroundColor: '#111827',
+            padding: { x: 8, y: 4 },
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(20).setVisible(false)
+        const updateCopyStatus = (): void => {
+            const part = mission.activeCopy
+            copyStatus.setVisible(part !== null)
+            if (part !== null) {
+                const label = part === 'bonus' ? 'dữ liệu phụ' : 'dữ liệu ' + part
+                copyStatus.setText(`Đang sao chép ${label} · ${mission.copyPercent}%`)
+            }
+        }
+        this.events.on(Phaser.Scenes.Events.POST_UPDATE, updateCopyStatus)
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.events.off(Phaser.Scenes.Events.POST_UPDATE, updateCopyStatus)
+        })
         const showFeedback = (message: string): void => {
             feedback.setText(message)
             feedbackTimer?.remove()
@@ -476,6 +497,7 @@ export class Level02Scene extends Phaser.Scene {
                 .setScale(cameraLevel, 1)
                 .setFillStyle(cameraLevel >= 0.6 ? 0xef4444 : 0x38bdf8)
             const guardLevel = Math.max(...guards.map((guard) => guard.getDetectionLevel()))
+            updatePursuitCue(this, guardLevel === 1)
             updateCover(cover, guardLevel > 0)
             updateCoverLabels(cover, guardLevel > 0)
             status.setText(hidingLabel(cover, guardLevel > 0))
@@ -488,7 +510,7 @@ export class Level02Scene extends Phaser.Scene {
 
             if (guards.some((guard) => guard.hasCapturedTarget(player, hidden))) {
                 const source = 'guard'
-                playSfx(this, 'caught')
+                showGameplayCue(this, 'caught')
 
                 this.cameras.main.flash(180, 200, 30, 30)
                 respawn(`Captured by ${source}! Returned to checkpoint.`)

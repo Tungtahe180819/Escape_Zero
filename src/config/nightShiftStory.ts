@@ -1,7 +1,7 @@
 import type { DialogueLine } from '../systems/story/DialogueTypes'
 export const NIGHT_FOOD: readonly DialogueLine[] = [
     { speaker: 'Người cấp suất ăn', text: 'Lan ở khu làm việc phía dưới. Lối ngắn phải qua lính và camera; lối phục vụ bên trái dài hơn nhưng ít người kiểm tra.' },
-    { speaker: 'Người cấp suất ăn', text: 'Cầm thẻ này. Nếu gặp anh tôi ở phòng máy, nhắn rằng chúng tôi vẫn chờ anh về. Đừng để anh nghĩ mình đã bị quên.' },
+    { speaker: 'Người cấp suất ăn', text: 'Cửa phục vụ đang mở. Nếu gặp anh tôi ở phòng máy, nhắn rằng chúng tôi vẫn chờ anh về. Đừng để anh nghĩ mình đã bị quên.' },
 ]
 export const NIGHT_LAN: readonly DialogueLine[] = [
     { speaker: 'Lan', text: 'Cậu tới được rồi. Những người ngồi ở đây đang bị ép gõ tin nhắn suốt đêm. Tuấn cũng bị đưa tới làm việc.' },

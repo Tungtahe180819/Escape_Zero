@@ -12,7 +12,66 @@ body {
   height: 100%;
 }
 
-canvas {
+#app > canvas {
   display: block;
   image-rendering: pixelated;
 }
+
+.game-main-menu {
+  z-index: 2;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(100vw, 177.7778vh);
+  height: min(100vh, 56.25vw);
+  container-type: inline-size;
+  color: #e5e7eb;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+#app > .game-sharp-text {
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+  image-rendering: auto;
+}
+
+.game-main-menu [hidden] {
+  display: none;
+}
+
+.game-main-menu > * {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  text-align: center;
+}
+
+.game-main-menu h1 { top: 20%; font-size: 5cqw; font-weight: 600; white-space: nowrap; }
+.game-main-menu p { font-size: 2.55cqw; width: 90%; }
+.game-menu-hint { top: 57%; color: #b8c3d3; }
+.game-menu-question { top: 41%; color: #fca5a5; }
+
+.game-main-menu button {
+  border: 1px solid #405064;
+  border-radius: 0.8cqw;
+  padding: 1.35cqw 3cqw;
+  background: #1f2937;
+  color: #a7f3c2;
+  font: inherit;
+  font-size: 3cqw;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.game-main-menu button:hover, .game-main-menu button:focus-visible {
+  background: #29384a;
+  outline: 2px solid #a7f3c2;
+}
+
+.game-main-menu [data-action="play"] { top: 42%; }
+.game-main-menu [data-action="confirm"] { top: 60%; }
+.game-main-menu [data-action="restart"], .game-main-menu [data-action="cancel"] { top: 75%; }
+.game-main-menu [data-action="settings"] { top: 90%; }

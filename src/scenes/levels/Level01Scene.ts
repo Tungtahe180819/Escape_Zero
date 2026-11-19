@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { showGameplayCue, updatePursuitCue } from '../../systems/audio/GameplayCue'
 import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { LEVEL01_STEALTH } from '../../config/stealthConfig'
@@ -635,7 +636,7 @@ export class Level01Scene extends Phaser.Scene {
         }
 
         this.onCaptured = (): void => {
-            playSfx(this, 'caught')
+            showGameplayCue(this, 'caught')
             respawn()
             feedbackText.setText('Bị phát hiện! Đã trở lại checkpoint.')
         }
@@ -816,7 +817,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
+        }).setScrollFactor(0).setDepth(10)
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
             fontSize: '9px',
@@ -941,6 +942,7 @@ export class Level01Scene extends Phaser.Scene {
         }
 
         const detection = Math.max(0, ...this.guards.map((guard) => guard.getDetectionLevel()))
+        updatePursuitCue(this, detection === 1)
         this.updateCover?.(cover, detection > 0)
         this.stealthText?.setText(hidingLabel(cover, detection > 0))
         const alertState = detection === 1 ? 'CHASE' : detection > 0 ? 'SEARCH' : 'PATROL'

@@ -1,5 +1,6 @@
 import { createCoverLabels } from '../../visuals/CoverIndicators'
 import Phaser from 'phaser'
+import { showGameplayCue, updatePursuitCue } from '../../systems/audio/GameplayCue'
 import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { Player } from '../../entities/Player'
@@ -139,7 +140,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
+        }).setScrollFactor(0).setDepth(10)
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
             fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2,
@@ -445,9 +446,10 @@ export class Level03Scene extends Phaser.Scene {
                 guard.updateAI(delta, player.x, player.y, player.isCrouching(), hidden, reported)
                 // Keep yard patrols away from the pit edges.
                 guard.x = Phaser.Math.Clamp(guard.x, level03X(560), level03X(1104))
-                if (guard.hasCapturedTarget(player, hidden)) { respawn(); return }
+                if (guard.hasCapturedTarget(player, hidden)) { showGameplayCue(this, 'caught'); respawn(); return }
             }
             if (!(hidden && dogAI.state === 'PATROL') && body.left <= dogAI.x + 14 && body.right >= dogAI.x - 14 && body.bottom > 274) {
+                showGameplayCue(this, 'caught')
                 respawn()
                 feedback.setText('Chó đã chạm tới Minh. Đi chậm bằng S để tránh gây tiếng động; khuất mắt rồi mới núp.')
                 return
@@ -481,14 +483,13 @@ export class Level03Scene extends Phaser.Scene {
                 && Phaser.Geom.Intersects.RectangleToRectangle(bounds, chaseStart)
             ) {
                 pursuit.start(chaseStart.left)
-                playSfx(this, 'chase')
                 feedback.setText('Run! Escape the pursuit.')
             }
 
             pursuit.updatePursuit(delta)
 
             if (pursuit.hasCaught(bounds.left)) {
-                playSfx(this, 'caught')
+                showGameplayCue(this, 'caught')
                 respawn()
                 feedback.setText('Caught! Pursuit reset at checkpoint.')
                 return
@@ -503,6 +504,7 @@ export class Level03Scene extends Phaser.Scene {
             }
 
             const pursuitState = pursuit.getState()
+            updatePursuitCue(this, pursuitState === 'ACTIVE' || yardGuards.some(guard => guard.getAlertState() === 'CHASE') || dogAI.state === 'CHASE')
             chaseStatus.setText(
                 pursuitState === 'ACTIVE'
                     ? 'Pursuit: RUN!'

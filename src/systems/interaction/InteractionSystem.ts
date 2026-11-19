@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import type { Interactable } from './Interactable'
+import { showGameplayCue } from '../audio/GameplayCue'
 
 export class InteractionSystem {
     private readonly targets: Interactable[]
@@ -55,6 +56,7 @@ export class InteractionSystem {
             .setVisible(true)
 
         if (pressed) {
+            showGameplayCue(this.promptText.scene, 'item', nearest.prompt)
             nearest.interact()
         }
     }

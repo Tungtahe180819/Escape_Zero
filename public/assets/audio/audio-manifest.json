@@ -33,8 +33,8 @@
     },
     {
       "file": "caught.wav",
-      "seconds": 0.4,
-      "peak": 0.3212
+      "seconds": 1.1,
+      "peak": 0.6266
     },
     {
       "file": "complete.wav",
@@ -48,8 +48,18 @@
     },
     {
       "file": "chase.wav",
-      "seconds": 0.55,
-      "peak": 0.2594
+      "seconds": 1.25,
+      "peak": 0.5169
+    },
+    {
+      "file": "item.wav",
+      "seconds": 0.18,
+      "peak": 0.2199
+    },
+    {
+      "file": "dialogue.wav",
+      "seconds": 0.3,
+      "peak": 0.2793
     },
     {
       "file": "ambient.wav",
