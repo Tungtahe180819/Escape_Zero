@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { settingsSystem } from '../../systems/settings/SettingsSystem'
 
 export class PauseScene extends Phaser.Scene {
     constructor() {
@@ -41,8 +42,8 @@ export class PauseScene extends Phaser.Scene {
             y: number,
             label: string,
             action: () => void,
-        ): void => {
-            this.add.text(width / 2, y, label, {
+        ): Phaser.GameObjects.Text => {
+            return this.add.text(width / 2, y, label, {
                 fontFamily: 'monospace',
                 fontSize: '14px',
                 color: '#86efac',
@@ -101,10 +102,23 @@ export class PauseScene extends Phaser.Scene {
             this.scene.pause()
         }
 
-        addButton(90, '[ RESUME - ENTER ]', resume)
-        addButton(130, '[ SETTINGS ]', openSettings)
-        addButton(170, '[ RESTART LEVEL ]', restartLevel)
-        addButton(210, '[ MAIN MENU ]', mainMenu)
+        const hudLabel = (): string => settingsSystem.isHudVisible() ? '[ HUD: BẬT ]' : '[ HUD: TẮT ]'
+        const toggleHud = (): void => {
+            if (closing) return
+            const visible = !settingsSystem.isHudVisible()
+            settingsSystem.setHudVisible(visible)
+            for (const item of this.scene.get(levelScene).children.getChildren()) {
+                if (item.name === 'level-hud' && (item instanceof Phaser.GameObjects.Text || item instanceof Phaser.GameObjects.Rectangle)) {
+                    item.setVisible(visible)
+                }
+            }
+            hudButton.setText(hudLabel())
+        }
+        addButton(80, '[ RESUME - ENTER ]', resume)
+        const hudButton = addButton(114, hudLabel(), toggleHud)
+        addButton(148, '[ SETTINGS ]', openSettings)
+        addButton(182, '[ RESTART LEVEL ]', restartLevel)
+        addButton(216, '[ MAIN MENU ]', mainMenu)
 
         this.add.text(
             width / 2,

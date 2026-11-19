@@ -1,5 +1,6 @@
 import { createCoverLabels } from '../../visuals/CoverIndicators'
 import Phaser from 'phaser'
+import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { Player } from '../../entities/Player'
 import { InputManager } from '../../systems/input/InputManager'
@@ -138,7 +139,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {
             fontFamily: 'monospace',
@@ -146,7 +147,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const objective = this.add.text(
             12, 46, 'Objective: Cross the yard and reach safety.',
@@ -158,7 +159,7 @@ export class Level03Scene extends Phaser.Scene {
                 strokeThickness: 2,
                 wordWrap: { width: 300 },
             },
-        ).setScrollFactor(0).setDepth(10).setVisible(false)
+        ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const status = this.add.text(332, 46, 'Checkpoint: START', {
             fontFamily: 'monospace',
@@ -166,7 +167,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#86efac',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const feedback = this.add.text(12, 80, '', {
             fontFamily: 'monospace',
@@ -175,7 +176,7 @@ export class Level03Scene extends Phaser.Scene {
             stroke: '#080d14',
             strokeThickness: 2,
             wordWrap: { width: 300 },
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const getChaseBounds = (name: string): Phaser.Geom.Rectangle => {
             const object = triggers.objects.find((item) => item.name === name)
@@ -203,7 +204,7 @@ export class Level03Scene extends Phaser.Scene {
         const exitDirection = this.add.text(12, 116, '', {
             fontFamily: 'monospace', fontSize: '9px', color: '#a5e0b5',
             stroke: '#080d14', strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         if (finishBounds.left < chaseEnd.right) {
             throw new Error('Finish must be after the chase end')
@@ -230,7 +231,7 @@ export class Level03Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         // Chase triggers remain invisible; the alarm and pursuit provide feedback.
 

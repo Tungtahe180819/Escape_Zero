@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { LEVEL02_STEALTH } from '../../config/stealthConfig'
 import { Player } from '../../entities/Player'
@@ -179,7 +180,7 @@ export class Level02Scene extends Phaser.Scene {
                 strokeThickness: 2,
                 wordWrap: { width: 300 },
             },
-        ).setScrollFactor(0).setDepth(10).setVisible(false)
+        ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const refreshObjective = (): void => {
             objective.setText(
@@ -224,7 +225,7 @@ export class Level02Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const status = this.add.text(332, 62, 'NGOÀI CHỖ NÚP', {
             fontFamily: 'monospace',
@@ -232,7 +233,7 @@ export class Level02Scene extends Phaser.Scene {
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const cameraStatus = this.add.text(332, 78, 'Camera: 0%', {
             fontFamily: 'monospace',
@@ -240,12 +241,12 @@ export class Level02Scene extends Phaser.Scene {
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.rectangle(332, 98, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10).setVisible(false)
+            .setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const cameraFill = this.add.rectangle(
             332, 98, 136, 6, 0x38bdf8,
@@ -253,7 +254,7 @@ export class Level02Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1).setVisible(false)
+            .setScale(0, 1).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const checkpoints = new CheckpointSystem(spawn)
 
@@ -289,12 +290,12 @@ export class Level02Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.rectangle(332, 130, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10).setVisible(false)
+            .setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const guardFill = this.add.rectangle(
             332, 130, 136, 6, 0xfacc15,
@@ -302,7 +303,7 @@ export class Level02Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1).setVisible(false)
+            .setScale(0, 1).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const checkpointStatus = this.add.text(
             332, 46, 'Checkpoint: START',
@@ -313,7 +314,7 @@ export class Level02Scene extends Phaser.Scene {
                 stroke: '#080d14',
                 strokeThickness: 2,
             },
-        ).setScrollFactor(0).setDepth(10).setVisible(false)
+        ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const feedback = this.add.text(240, 212, '', {
             fontFamily: 'monospace',
@@ -322,7 +323,7 @@ export class Level02Scene extends Phaser.Scene {
             stroke: '#080d14',
             strokeThickness: 2,
             wordWrap: { width: 300 },
-        }).setScrollFactor(0).setDepth(10).setVisible(false).setOrigin(0.5)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible()).setOrigin(0.5)
         let feedbackTimer: Phaser.Time.TimerEvent | undefined
         const showFeedback = (message: string): void => {
             feedback.setText(message)

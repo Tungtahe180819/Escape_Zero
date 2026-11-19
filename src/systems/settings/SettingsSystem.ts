@@ -4,6 +4,7 @@ interface SettingsData {
     version: 1
     volume: number
     muted: boolean
+    hudVisible?: boolean
 }
 
 const SETTINGS_KEY = 'escape-zero.settings'
@@ -29,7 +30,8 @@ function isValid(value: unknown): value is SettingsData {
         Number.isFinite(data.volume) &&
         data.volume >= 0 &&
         data.volume <= 1 &&
-        typeof data.muted === 'boolean'
+        typeof data.muted === 'boolean' &&
+        (data.hudVisible === undefined || typeof data.hudVisible === 'boolean')
     )
 }
 
@@ -81,6 +83,15 @@ export class SettingsSystem {
 
     isMuted(): boolean {
         return this.data.muted
+    }
+
+    isHudVisible(): boolean {
+        return this.data.hudVisible ?? false
+    }
+
+    setHudVisible(visible: boolean): void {
+        this.data.hudVisible = visible
+        this.persist(this.data)
     }
 
     setVolume(value: number): boolean {

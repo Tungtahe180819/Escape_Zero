@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { settingsSystem } from '../../systems/settings/SettingsSystem'
 import { playSfx } from '../../systems/audio/AudioSystem'
 import { LEVEL01_STEALTH } from '../../config/stealthConfig'
 import { Player } from '../../entities/Player'
@@ -191,7 +192,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#86efac',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const refreshStatus = (): void => {
             statusText.setText(
@@ -209,7 +210,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const keyX = keyObject.x
         const keyY = keyObject.y
@@ -511,7 +512,7 @@ export class Level01Scene extends Phaser.Scene {
             color: '#93c5fd',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.detectionText = this.add.text(12, 132, 'Lính: PATROL', {
             fontFamily: 'monospace',
@@ -519,12 +520,12 @@ export class Level01Scene extends Phaser.Scene {
             color: '#fef08a',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.rectangle(332, 98, 136, 6, 0x334155)
             .setOrigin(0, 0)
             .setScrollFactor(0)
-            .setDepth(10).setVisible(false)
+            .setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.detectionFill = this.add.rectangle(
             332, 98, 136, 6, 0xfacc15,
@@ -532,7 +533,7 @@ export class Level01Scene extends Phaser.Scene {
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(11)
-            .setScale(0, 1).setVisible(false)
+            .setScale(0, 1).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const checkpoints = new CheckpointSystem({
             x: spawn.x,
@@ -548,7 +549,7 @@ export class Level01Scene extends Phaser.Scene {
                 stroke: '#080d14',
                 strokeThickness: 2,
             },
-        ).setScrollFactor(0).setDepth(10).setVisible(false)
+        ).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const checkpointObjects = triggers.objects.filter(
             (object) => object.name.startsWith('cp-'),
@@ -815,14 +816,14 @@ export class Level01Scene extends Phaser.Scene {
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         this.add.text(12, 30, 'A/D: Move | Space: Jump | S: Crouch | E: Interact | Esc: Pause', {            fontFamily: 'monospace',
             fontSize: '8px',
             color: '#e5e7eb',
             stroke: '#080d14',
             strokeThickness: 2,
-        }).setScrollFactor(0).setDepth(10).setVisible(false)
+        }).setScrollFactor(0).setDepth(10).setName('level-hud').setVisible(settingsSystem.isHudVisible())
 
         const menuButton = this.add.text(
             this.scale.width - 12, 12, '[ PAUSE ]',
