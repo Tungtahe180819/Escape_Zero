@@ -41,6 +41,7 @@ export class TouchControls {
         scene.game.canvas.parentElement?.append(this.panel)
         scene.events.on('pause', this.suspend)
         scene.events.on('resume', this.resume)
+        scene.game.events.on('pause', this.clear)
         window.addEventListener('blur', this.clear)
     }
 
@@ -70,6 +71,7 @@ export class TouchControls {
         this.suspend()
         this.scene.events.off('pause', this.suspend)
         this.scene.events.off('resume', this.resume)
+        this.scene.game.events.off('pause', this.clear)
         window.removeEventListener('blur', this.clear)
         this.panel.remove()
     }

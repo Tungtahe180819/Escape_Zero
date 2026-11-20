@@ -64,6 +64,32 @@ body {
 }
 .game-touch-controls button[aria-pressed="true"] { background: #395668; }
 
+.game-rotate-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 24px;
+  background: #101827;
+  color: #edf4ff;
+  text-align: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.game-rotate-notice[hidden] { display: none; }
+.game-rotate-notice h1 { margin: 0; font-size: 26px; }
+.game-rotate-notice p { max-width: 34ch; line-height: 1.5; }
+.game-rotate-notice button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #64758c;
+  border-radius: 8px;
+  background: #233347;
+  color: inherit;
+  font: inherit;
+}
+
 @media (orientation: portrait) and (any-pointer: coarse) {
   .game-main-menu {
     height: min(440px, 85dvh);
