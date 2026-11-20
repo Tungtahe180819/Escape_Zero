@@ -44,7 +44,7 @@ export class DialogueScene extends Phaser.Scene {
         const render = (): void => {
             speaker.setText(lines[index].speaker)
             text.setText(lines[index].text)
-            page.setText(`${index + 1}/${lines.length} | E/Space/Enter: Tiếp`)
+            page.setText(`${index + 1}/${lines.length} · ${index + 1 === lines.length ? 'Đóng' : 'Tiếp →'}`)
         }
 
         const finish = (event?: KeyboardEvent): void => {
@@ -82,6 +82,7 @@ export class DialogueScene extends Phaser.Scene {
 
         // Clicking the dialogue body is an alternative to keyboard advance.
         text.setInteractive({ useHandCursor: true }).on('pointerdown', () => advance())
+        page.setPadding(0, 4).setInteractive({ useHandCursor: true }).on('pointerdown', () => advance())
 
         for (const key of ['E', 'SPACE', 'ENTER']) {
             this.input.keyboard?.on(`keydown-${key}`, advance)

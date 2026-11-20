@@ -36,6 +36,44 @@ body {
   image-rendering: auto;
 }
 
+.game-touch-controls {
+  position: fixed;
+  z-index: 3;
+  left: max(8px, env(safe-area-inset-left));
+  right: max(8px, env(safe-area-inset-right));
+  bottom: max(38px, calc(env(safe-area-inset-bottom) + 24px));
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.game-touch-controls[hidden] { display: none; }
+.game-touch-controls > div { display: flex; gap: 5px; }
+.game-touch-controls button {
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 1px solid #8293a7;
+  border-radius: 8px;
+  background: #111827dc;
+  color: #f1f5f9;
+  font: 600 14px 'Segoe UI', Arial, sans-serif;
+}
+.game-touch-controls button[aria-pressed="true"] { background: #395668; }
+
+@media (orientation: portrait) and (any-pointer: coarse) {
+  .game-main-menu {
+    height: min(440px, 85dvh);
+    background: #111827;
+  }
+  .game-main-menu h1 { font-size: max(24px, 5cqw); }
+  .game-main-menu p { font-size: max(14px, 2.55cqw); }
+  .game-main-menu button { min-height: 44px; font-size: max(14px, 3cqw); }
+}
+
 .game-main-menu [hidden] {
   display: none;
 }

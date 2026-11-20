@@ -47,8 +47,8 @@ export class FinalFenceGameplay {
             fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px', color: '#fef08a',
             stroke: '#080d14', strokeThickness: 2, wordWrap: { width: 450 }, align: 'center',
         }).setOrigin(0.5).setScrollFactor(0).setDepth(20)
-        const journal = (event: KeyboardEvent): void => {
-            if (event.repeat || this.mission.running || this.mission.escaped) return
+        const journal = (event?: KeyboardEvent): void => {
+            if (event?.repeat || this.mission.running || this.mission.escaped) return
             const m = this.mission
             this.talk([{ speaker: 'Sổ tay — Hàng rào cuối cùng', text: [
                 m.clues.has('map') ? 'Lan: cột hai vạch, phía mương chảy ra, sơn đỏ.' : 'Chưa đọc bản đồ Lan.',
@@ -60,6 +60,11 @@ export class FinalFenceGameplay {
             ].join('\n') }])
         }
         scene.input.keyboard?.on('keydown-J', journal)
+        scene.add.text(468, 260, '[ SỔ TAY · J ]', {
+            fontFamily: 'Segoe UI, Tahoma, Arial, sans-serif', resolution: 2, fontSize: '10px',
+            color: '#93c5fd', stroke: '#080d14', strokeThickness: 2,
+        }).setOrigin(1, 1).setScrollFactor(0).setDepth(20)
+            .setInteractive({ useHandCursor: true }).on('pointerdown', () => journal())
         scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.input.keyboard?.off('keydown-J', journal))
     }
 
